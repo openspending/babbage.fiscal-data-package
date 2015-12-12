@@ -5,7 +5,7 @@ __version__ = '0.0.1'
 setup(
     name='babbage_fiscal',
     version=__version__,
-    description="Bi-directional converter babbage/fdp",
+    description="API and Bi-directional converter babbage/fdp",
     long_description="",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -20,7 +20,7 @@ setup(
     keywords='schema jsontableschema jts fdp fiscal data babbage',
     author='OpenSpending',
     author_email='info@openspending.org',
-    url='http://github.com/pudo/babbage_fiscal',
+    url='https://github.com/openspending/babbage.fiscal-data-package',
     license='MIT',
     packages=find_packages(exclude=['ez_setup', 'examples', 'test']),
     namespace_packages=[],
@@ -30,7 +30,12 @@ setup(
     test_suite='nose.collector',
     install_requires=[
         'babbage >= 0.1.1',
-        'normality'
+        'normality',
+        'sqlalchemy',
+        'click',
+        'datapackage',
+        'jtssql',
+
     ],
     tests_require=[
         'nose',
@@ -38,5 +43,10 @@ setup(
         'wheel',
         'unicodecsv',
         'jtskit'
-    ]
+    ],
+    entry_points={
+      'console_scripts': [
+        'bb-fdp-cli = babbage_fiscal:cli',
+      ]
+    },
 )

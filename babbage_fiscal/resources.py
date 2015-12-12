@@ -1,4 +1,4 @@
-from babbage_fical.util import database_name
+from .db_utils import database_name
 
 
 def reflect_mapping_resources(mapping):
