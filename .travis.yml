@@ -21,8 +21,8 @@ install:
     - pip install -U git+git://github.com/okfn/datapackage-py.git
 before_script:
     - psql -c 'create database os;' -U postgres
-    - nosetests --version
+    - python -m nose --version
 script:
-    - nosetests --with-coverage --cover-package=babbage_fiscal
+    - python -m nose --with-coverage --cover-package=babbage_fiscal
 after_success:
     - coveralls
