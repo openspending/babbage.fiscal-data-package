@@ -1,5 +1,6 @@
 # Babbage Fiscal Data Package Support
 
+[![Build Status](https://travis-ci.org/openspending/babbage.fiscal-data-package.svg?branch=master)](https://travis-ci.org/openspending/babbage.fiscal-data-package)
 [![Coverage Status](https://coveralls.io/repos/openspending/babbage.fiscal-data-package/badge.svg?branch=master&service=github)](https://coveralls.io/github/openspending/babbage.fiscal-data-package?branch=master)
 
 This module is intended to provide bi-directional support for conversion
