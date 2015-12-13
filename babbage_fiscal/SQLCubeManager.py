@@ -40,7 +40,7 @@ class SQLCubeManager(CubeManager):
     def list_cubes(self):
         """ List all available models in the DB """
         for instance in self._session.query(Model._id).order_by(Model._id):
-            yield instance
+            yield instance[0]
 
     def has_cube(self, name):
         """ Check if a cube exists. """

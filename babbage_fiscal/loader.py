@@ -5,7 +5,7 @@ from jtssql import SchemaTable
 
 from .fdp_utils import fdp_to_model
 
-def load_fdp(package):
+def load_fdp_to_db(package):
 
     # Load and validate the datapackage
     dpo = DataPackage(package, schema='fiscal')
