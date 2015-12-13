@@ -4,12 +4,12 @@ from babbage.api import configure_api
 
 from SQLCubeManager import SQLCubeManager
 
-from config import engine
+from config import get_engine
 
 
 def runserver(port=5000):
     app = Flask('babbage_fiscal')
-    manager = SQLCubeManager(engine)
+    manager = SQLCubeManager(get_engine())
     blueprint = configure_api(app, manager)
     app.register_blueprint(blueprint, url_prefix='/api')
 

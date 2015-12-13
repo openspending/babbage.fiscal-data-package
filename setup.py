@@ -35,7 +35,6 @@ setup(
         'click',
         'datapackage',
         'jtssql',
-
     ],
     tests_require=[
         'nose',
