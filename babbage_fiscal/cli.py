@@ -22,5 +22,5 @@ def load_fdp(package):
 def run_server(port):
     runserver(port)
 
-if __name__=="__main__":
+if __name__ == "__main__":
     cli()
