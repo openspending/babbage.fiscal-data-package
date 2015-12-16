@@ -33,5 +33,5 @@ class LoaderTest(TestCase):
                            env={'FISCAL_PACKAGE_ENGINE':'sqlite:///test.db'})
         print result
         print result.output
-        self.cm = model_registry.SQLCubeManager(config.get_engine())
-        self.assertGreater(len(list(self.cm.list_cubes())), 0, 'no dataset was loaded')
+        self.cm = model_registry.ModelRegistry(config.get_engine())
+        self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')

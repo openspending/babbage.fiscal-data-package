@@ -10,19 +10,21 @@ from test_common import SAMPLE_PACKAGE
 
 cv = Condition()
 
+
 class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
-        print("GET",self.path)
         with cv:
             cv.notify()
-        raise RuntimeError()
 
 
 class MyHTTPServer(Thread):
 
-    def run(self):
+    def __init__(self):
+        super(MyHTTPServer, self).__init__()
         self.server = HTTPServer(("localhost",7878), MyHandler)
+
+    def run(self):
         self.server.serve_forever()
 
     def stop(self):

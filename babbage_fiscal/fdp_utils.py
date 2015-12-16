@@ -1,5 +1,12 @@
 def fdp_to_model(package, table_name, resource, field_translator):
-    """Create a Babbage Model from a Fiscal DataPackage descriptor"""
+    """
+    Create a Babbage Model from a Fiscal DataPackage descriptor
+    :param package: datapackage object
+    :param table_name: db table name to use
+    :param resource: resource to load (in the datapackage object)
+    :param field_translator: dict for translating resource attribute names to valid db column names
+    :return: Babbage Model
+    """
     model = {
         'fact_table': table_name,
         'measures': {},
