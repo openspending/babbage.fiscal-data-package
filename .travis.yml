@@ -23,6 +23,6 @@ before_script:
     - psql -c 'create database os;' -U postgres
     - python -m nose --version
 script:
-    - python -m nose --with-coverage --cover-package=babbage_fiscal
+    - python -m nose --with-coverage --cover-package=babbage_fiscal -w tests
 after_success:
     - coveralls

@@ -1,9 +1,10 @@
 from unittest import TestCase
 
-from babbage_fiscal import config, loader, SQLCubeManager
+from babbage_fiscal import config, loader, model_registry
+from test_common import SAMPLE_PACKAGE
 
 
-class CliTest(TestCase):
+class LoaderTest(TestCase):
 
     def setUp(self):
         """
@@ -11,12 +12,20 @@ class CliTest(TestCase):
         :return:
         """
         config._set_connection_string('sqlite:///:memory:')
-        self.cm = SQLCubeManager.SQLCubeManager(config.get_engine())
+        self.cm = model_registry.ModelRegistry(config.get_engine())
+        self.loader = loader.FDPLoader()
 
     def test_correct_file_load_success(self):
         """
         Simple loading of one valid fdp into DB
         """
-        loader.load_fdp_to_db('https://raw.githubusercontent.com/akariv/boost-peru-national/master/datapackage.json')
-        # loader.load_fdp('data-sample/datapackage.json')
-        self.assertGreater(len(list(self.cm.list_cubes())), 0, 'no dataset was loaded')
+        self.loader.load_fdp_to_db(SAMPLE_PACKAGE)
+        self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')
+
+    def test_correct_bg_file_load_success(self):
+        """
+        Simple loading of one valid fdp into DB
+        """
+        self.loader.start_loading_in_bg(SAMPLE_PACKAGE,"http://google.com")
+        self.loader._shutdown()
+        self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')

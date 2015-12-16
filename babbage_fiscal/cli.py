@@ -3,24 +3,18 @@ from __future__ import absolute_import    # (at top of module)
 
 import click
 
-from .app import runserver
-from .loader import load_fdp_to_db
+from .loader import FDPLoader
 
 @click.group()
 def cli():
     pass
 
+
 @cli.command(name="load-fdp")
 @click.option('--package', metavar='<path>', required=True,
               help='Path/URL to the directory where datapackage.json resides')
 def load_fdp(package):
-    load_fdp_to_db(package)
-
-@cli.command(name="run-server")
-@click.option('--port', metavar='<port>', default=5000, type=click.INT,
-              help='listening port')
-def run_server(port):
-    runserver(port)
+    FDPLoader().load_fdp_to_db(package)
 
 if __name__ == "__main__":
     cli()

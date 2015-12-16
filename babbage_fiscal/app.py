@@ -2,7 +2,7 @@ from flask import Flask
 
 from babbage.api import configure_api
 
-from SQLCubeManager import SQLCubeManager
+from model_registry import SQLCubeManager
 
 from config import get_engine
 

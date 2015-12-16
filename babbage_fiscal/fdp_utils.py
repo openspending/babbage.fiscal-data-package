@@ -15,7 +15,6 @@ def fdp_to_model(package, table_name, resource, field_translator):
             continue
         babbage_measure = {
             'label':name,
-            #'description':,
             'column':field_translator[measure['source']],
         }
         model['measures'][name]=babbage_measure

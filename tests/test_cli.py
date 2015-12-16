@@ -3,9 +3,11 @@ import os
 from unittest import TestCase
 
 from babbage_fiscal.cli import cli
-from babbage_fiscal import SQLCubeManager, config
+from babbage_fiscal import model_registry, config
 
 from click.testing import CliRunner
+
+from test_common import SAMPLE_PACKAGE
 
 
 class LoaderTest(TestCase):
@@ -27,9 +29,9 @@ class LoaderTest(TestCase):
         """
         # loader.load_fdp('https://raw.githubusercontent.com/akariv/boost-peru-national/master/datapackage.json')
         result = self.runner.invoke(cli,
-                           args=['load-fdp', '--package', 'https://raw.githubusercontent.com/akariv/boost-peru-national/master/datapackage.json'],
+                           args=['load-fdp', '--package', SAMPLE_PACKAGE],
                            env={'FISCAL_PACKAGE_ENGINE':'sqlite:///test.db'})
         print result
         print result.output
-        self.cm = SQLCubeManager.SQLCubeManager(config.get_engine())
+        self.cm = model_registry.SQLCubeManager(config.get_engine())
         self.assertGreater(len(list(self.cm.list_cubes())), 0, 'no dataset was loaded')
