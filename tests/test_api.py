@@ -1,10 +1,12 @@
 from threading import Condition, Thread
+import os
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 from flask import Flask, url_for
 from flask.ext.testing import TestCase as FlaskTestCase
 
+from babbage_fiscal import config
 from babbage_fiscal.api import FDPLoaderBlueprint
 from test_common import SAMPLE_PACKAGE
 
@@ -33,6 +35,7 @@ class MyHTTPServer(Thread):
 class TestAPI(FlaskTestCase):
 
     def create_app(self):
+        config._set_connection_string('sqlite:///test.db')
         app = Flask('test')
         app.register_blueprint(FDPLoaderBlueprint, url_prefix='/loader')
         app.config['DEBUG'] = True
@@ -43,6 +46,10 @@ class TestAPI(FlaskTestCase):
     def setUp(self):
         super(TestAPI, self).setUp()
 
+    def tearDown(self):
+        if os.path.exists('test.db'):
+            os.unlink('test.db')
+
     def test_load_package_success(self):
         res = self.client.get(url_for('FDPLoader.load',package=SAMPLE_PACKAGE, callback='http://localhost:7878/callback'))
         self.assertEquals(res.status_code, 200, "Bad status code %r" % res.status_code)
@@ -51,6 +58,10 @@ class TestAPI(FlaskTestCase):
         with cv:
             cv.wait()
         th.stop()
+
+    def test_load_package_bad_parameters(self):
+        res = self.client.get(url_for('FDPLoader.load',packadge=SAMPLE_PACKAGE, callback='http://localhost:7878/callback'))
+        self.assertEquals(res.status_code, 400, "Bad status code %r" % res.status_code)
 
 
 

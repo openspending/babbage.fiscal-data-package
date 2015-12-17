@@ -27,6 +27,15 @@ class LoaderTest(TestCase):
         self.cm = model_registry.ModelRegistry(config.get_engine())
         self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')
 
+    def test_correct_file_double_load_success(self):
+        """
+        Simple loading of one valid fdp into DB
+        """
+        self.loader.load_fdp_to_db(SAMPLE_PACKAGE)
+        self.loader.load_fdp_to_db(SAMPLE_PACKAGE)
+        self.cm = model_registry.ModelRegistry(config.get_engine())
+        self.assertEquals(len(list(self.cm.list_models())), 1, 'no dataset was loaded')
+
     def test_correct_file_load_supplied_engine_success(self):
         """
         Simple loading of one valid fdp into DB

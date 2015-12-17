@@ -13,7 +13,7 @@ class RegistryTest(TestCase):
         :return:
         """
         config._set_connection_string('sqlite:///:memory:')
-        fdp_loader = loader.FDPLoader()
+        fdp_loader = loader.FDPLoader(config.get_engine())
         fdp_loader.load_fdp_to_db(SAMPLE_PACKAGE)
 
     def test_list_cubes_correct_values(self):

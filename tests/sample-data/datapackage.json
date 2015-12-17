@@ -33,12 +33,12 @@
             "description": ""
           },
           {
-            "name": "admin2 (code)",
+            "name": "admin2!",
             "type": "string",
             "description": ""
           },
           {
-            "name": "admin2 (label)",
+            "name": "admin2*",
             "type": "string",
             "description": ""
           },
@@ -240,11 +240,11 @@
             "source": "admin1"
           },
           "admin2_code": {
-            "source": "admin2 (code)",
+            "source": "admin2!",
             "parent": "admin1"
           },
           "admin2_label": {
-            "source": "admin2 (label)",
+            "source": "admin2*",
             "labelfor": "admin2_code"
           },
           "admin3_code": {
