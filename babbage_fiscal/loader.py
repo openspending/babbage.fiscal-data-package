@@ -20,24 +20,29 @@ class FDPLoader(object):
     Utility class for loading FDPs to the DB
     """
 
-    def __init__(self):
+    def __init__(self, engine=None):
+        if engine is None:
+            self.engine = get_engine()
+        else:
+            self.engine = engine
         self.executor = ThreadPoolExecutor(max_workers=1)
 
     @staticmethod
-    def load_fdp_to_db(package):
+    def load_fdp_to_db(package, engine=None):
         """
         Load an FDP to the database, create a babbage model and save it as well
         :param package: URL for the datapackage.json
         """
 
         # Load and validate the datapackage
+        if engine is None:
+            engine = get_engine()
         dpo = DataPackage(package, schema='fiscal')
         dpo.validate()
         resource = dpo.resources[0]
         schema = resource.metadata['schema']
 
         # Use the cube manager to get the table name
-        engine = get_engine()
         registry = ModelRegistry(engine)
         datapackage_name = dpo.metadata['name']
         table_name = registry.table_name_for_package( datapackage_name )
@@ -63,13 +68,13 @@ class FDPLoader(object):
         registry.save_model(datapackage_name, package, model)
 
     @staticmethod
-    def _load_fdp_with_callback(package, callback):
+    def _load_fdp_with_callback(package, callback, engine):
         """
         Load an FDP to the DB and call a callback when done
         :param package: URL for the datapackage.json file
         :param callback: URL to call when the import is successful
         """
-        FDPLoader.load_fdp_to_db(package)
+        FDPLoader.load_fdp_to_db(package, engine)
         requests.get(callback)
 
     def start_loading_in_bg(self, package, callback):
@@ -78,7 +83,7 @@ class FDPLoader(object):
         :param package: URL for the datapackage.json file
         :param callback: URL to call when the import is successful
         """
-        self.executor.submit(FDPLoader._load_fdp_with_callback,package,callback)
+        self.executor.submit(FDPLoader._load_fdp_with_callback, package, callback, self.engine)
 
     def _shutdown(self):
         """

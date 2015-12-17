@@ -5,7 +5,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from flask import Flask, url_for
 from flask.ext.testing import TestCase as FlaskTestCase
 
-from babbage_fiscal.api import babbage_loader
+from babbage_fiscal.api import FDPLoaderBlueprint
 from test_common import SAMPLE_PACKAGE
 
 cv = Condition()
@@ -34,7 +34,7 @@ class TestAPI(FlaskTestCase):
 
     def create_app(self):
         app = Flask('test')
-        app.register_blueprint(babbage_loader, url_prefix='/loader')
+        app.register_blueprint(FDPLoaderBlueprint, url_prefix='/loader')
         app.config['DEBUG'] = True
         app.config['TESTING'] = True
         app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = True
@@ -44,7 +44,7 @@ class TestAPI(FlaskTestCase):
         super(TestAPI, self).setUp()
 
     def test_load_package_success(self):
-        res = self.client.get(url_for('babbage_loader.load',package=SAMPLE_PACKAGE, callback='http://localhost:7878/callback'))
+        res = self.client.get(url_for('FDPLoader.load',package=SAMPLE_PACKAGE, callback='http://localhost:7878/callback'))
         self.assertEquals(res.status_code, 200, "Bad status code %r" % res.status_code)
         th = MyHTTPServer()
         th.start()

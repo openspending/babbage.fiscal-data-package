@@ -3,11 +3,11 @@ from jinja2 import TemplateNotFound
 
 from .loader import FDPLoader
 
-babbage_loader = Blueprint('babbage_loader', __name__)
+FDPLoaderBlueprint = Blueprint('FDPLoader', __name__)
 fdp_loader = FDPLoader()
 
 
-@babbage_loader.route('/')
+@FDPLoaderBlueprint.route('/')
 def load():
     try:
         package = request.args.get('package')
