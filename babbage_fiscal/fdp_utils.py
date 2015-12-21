@@ -48,8 +48,9 @@ def fdp_to_model(package, table_name, resource, field_translator):
                 'attributes': {
                     source: {'column':source,'label':attr}
                 },
-                'label':label,
+                'label': label,
                 'key_attribute': source,
+                'group': name,
             }
             if labels.has_key(attr):
                 label = labels[attr]

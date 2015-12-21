@@ -1,4 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
 import requests
 
 from model_registry import ModelRegistry
@@ -14,7 +13,6 @@ def _translator_iterator(iter,translations):
     for rec in iter:
         yield dict((translations[k],v) for k,v in rec.items())
 
-
 class FDPLoader(object):
     """
     Utility class for loading FDPs to the DB
@@ -25,10 +23,9 @@ class FDPLoader(object):
             self.engine = get_engine()
         else:
             self.engine = engine
-        self.executor = ThreadPoolExecutor(max_workers=1)
 
     @staticmethod
-    def load_fdp_to_db(package, engine=None):
+    def load_fdp_to_db(package, engine = None):
         """
         Load an FDP to the database, create a babbage model and save it as well
         :param package: URL for the datapackage.json
@@ -65,29 +62,4 @@ class FDPLoader(object):
 
         # Create Babbage Model
         model = fdp_to_model(dpo, table_name, resource, field_translation)
-        registry.save_model(datapackage_name, package, model)
-
-    @staticmethod
-    def _load_fdp_with_callback(package, callback, engine):
-        """
-        Load an FDP to the DB and call a callback when done
-        :param package: URL for the datapackage.json file
-        :param callback: URL to call when the import is successful
-        """
-        FDPLoader.load_fdp_to_db(package, engine)
-        requests.get(callback)
-
-    def start_loading_in_bg(self, package, callback):
-        """
-        Load an FDP to the DB in the background
-        :param package: URL for the datapackage.json file
-        :param callback: URL to call when the import is successful
-        """
-        self.executor.submit(FDPLoader._load_fdp_with_callback, package, callback, self.engine)
-
-    def _shutdown(self):
-        """
-        Shutdown the executor, waiting for all tasks to complete
-        :return: nothing
-        """
-        self.executor.shutdown(wait=True)
+        registry.save_model(datapackage_name, package, dpo, model)

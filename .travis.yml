@@ -10,7 +10,9 @@ addons:
     postgresql: "9.4"
 
 env:
-    - FISCAL_PACKAGE_ENGINE=postgresql://postgres@/os
+    global:
+        - CELERY_CONFIG='sqla+sqlite:///celerydb.sqlite'
+        - CELERY_BACKEND_CONFIG='db+sqlite:///results.db'
 before_install:
     - virtualenv ./pyenv --distribute
     - source ./pyenv/bin/activate
@@ -23,6 +25,9 @@ before_script:
     - psql -c 'create database os;' -U postgres
     - python -m nose --version
 script:
+    - cd tests
+    - celery -A babbage_fiscal.tasks worker &
+    - cd ..
     - python -m nose --with-coverage --cover-package=babbage_fiscal -w tests
 after_success:
     - coveralls

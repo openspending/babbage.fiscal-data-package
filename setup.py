@@ -35,6 +35,7 @@ setup(
         'click',
         'datapackage',
         'jtssql',
+        'celery',
     ],
     tests_require=[
         'nose',

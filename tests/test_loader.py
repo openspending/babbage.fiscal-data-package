@@ -3,8 +3,9 @@ import os
 
 from unittest import TestCase
 
-from babbage_fiscal import config, loader, model_registry
+from babbage_fiscal import config, loader, model_registry, tasks
 from test_common import SAMPLE_PACKAGE
+
 
 class LoaderTest(TestCase):
 
@@ -13,11 +14,13 @@ class LoaderTest(TestCase):
         Set-up a dummy DB for the tests
         :return:
         """
-        config._set_connection_string('sqlite:///test.db')
+        self.dbfilename = os.path.join(os.path.abspath('.'), 'test.db')
+        self.connection_string = 'sqlite:///' + self.dbfilename
+        config._set_connection_string(self.connection_string)
         self.loader = loader.FDPLoader()
 
     def tearDown(self):
-        os.unlink('test.db')
+        os.unlink(self.dbfilename)
 
     def test_correct_file_load_success(self):
         """
@@ -48,8 +51,7 @@ class LoaderTest(TestCase):
         """
         Simple loading of one valid fdp into DB
         """
-        self.loader.start_loading_in_bg(SAMPLE_PACKAGE,"http://google.com")
-        self.loader._shutdown()
-        time.sleep(1) # settle down time
+        result = tasks.load_fdp_task.apply_async(args=(SAMPLE_PACKAGE, "http://google.com", self.connection_string))
+        result_output = result.wait(timeout=10, interval=0.5)
         self.cm = model_registry.ModelRegistry(config.get_engine())
         self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')

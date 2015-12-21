@@ -16,8 +16,13 @@ cv = Condition()
 class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
-        with cv:
-            cv.notify()
+        self.send_response(200,'OK')
+        try:
+            with cv:
+                cv.notify()
+            return "OK"
+        except Exception, e:
+            print e
 
 
 class MyHTTPServer(Thread):

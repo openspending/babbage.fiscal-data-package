@@ -2,7 +2,7 @@ import os
 
 from sqlalchemy import create_engine
 
-_connection_string = os.environ.get('FISCAL_PACKAGE_ENGINE',u'postgresql://osuser:1234@localhost/os')
+_connection_string = os.environ.get('FISCAL_PACKAGE_ENGINE')#,u'postgresql://osuser:1234@localhost/os')
 _engine = None
 
 
@@ -10,6 +10,10 @@ def _set_connection_string(connection_string):
     global _engine, _connection_string
     _engine = None
     _connection_string = connection_string
+
+
+def get_connection_string():
+    return _connection_string
 
 
 def get_engine():

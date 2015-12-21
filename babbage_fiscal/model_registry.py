@@ -14,6 +14,7 @@ class Model(Base):
     __tablename__ = 'models'
     id = Column(Unicode, primary_key=True)
     model = Column(Unicode)
+    schema = Column(Unicode)
     origin_url = Column(String)
 
 
@@ -28,11 +29,12 @@ class ModelRegistry(object):
     def table_name_for_package(datapackage_name):
         return model_name(datapackage_name)
 
-    def save_model(self, name, datapackage_url, model):
+    def save_model(self, name, datapackage_url, datapackage, model):
         """
         Save a model in the registry
         :param name: name for the model
         :param datapackage_url: origin URL for the datapackage which is the source for this model
+        :param datapackage: datapackage object from which this model was derived
         :param model: model to save
         """
         rec = self._session.query(Model).filter(Model.id == name).first()
@@ -40,6 +42,7 @@ class ModelRegistry(object):
             rec = Model(id=name)
             self._session.add(rec)
         rec.model = json.dumps(model)
+        rec.schema = json.dumps(datapackage.metadata)
         rec.origin_url = datapackage_url
         self._session.commit()
 
