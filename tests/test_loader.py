@@ -4,8 +4,7 @@ import os
 from unittest import TestCase
 
 from babbage_fiscal import config, loader, model_registry, tasks
-from test_common import SAMPLE_PACKAGE
-
+from test_common import SAMPLE_PACKAGES
 
 class LoaderTest(TestCase):
 
@@ -24,16 +23,19 @@ class LoaderTest(TestCase):
 
     def test_correct_file_load_success(self):
         """
-        Simple loading of one valid fdp into DB
+        Simple loading of valid fdp's into DB
         """
-        self.loader.load_fdp_to_db(SAMPLE_PACKAGE)
-        self.cm = model_registry.ModelRegistry(config.get_engine())
-        self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')
+        for MODEL_NAME, SAMPLE_PACKAGE in SAMPLE_PACKAGES.values():
+            print MODEL_NAME, SAMPLE_PACKAGE
+            self.loader.load_fdp_to_db(SAMPLE_PACKAGE)
+            self.cm = model_registry.ModelRegistry(config.get_engine())
+        self.assertGreater(len(list(self.cm.list_models())), 1, 'no dataset was loaded')
 
     def test_correct_file_double_load_success(self):
         """
-        Simple loading of one valid fdp into DB
+        Double loading of one valid fdp into DB
         """
+        MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['md']
         self.loader.load_fdp_to_db(SAMPLE_PACKAGE)
         self.loader.load_fdp_to_db(SAMPLE_PACKAGE)
         self.cm = model_registry.ModelRegistry(config.get_engine())
@@ -41,16 +43,18 @@ class LoaderTest(TestCase):
 
     def test_correct_file_load_supplied_engine_success(self):
         """
-        Simple loading of one valid fdp into DB
+        Simple loading of one valid fdp into DB with supplied engine
         """
+        MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['md']
         self.loader.load_fdp_to_db(SAMPLE_PACKAGE, config.get_engine())
         self.cm = model_registry.ModelRegistry(config.get_engine())
         self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')
 
     def test_correct_bg_file_load_success(self):
         """
-        Simple loading of one valid fdp into DB
+        Simple loading of one valid fdp into DB in background
         """
+        MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['uk']
         result = tasks.load_fdp_task.apply_async(args=(SAMPLE_PACKAGE, "http://google.com", self.connection_string))
         result_output = result.wait(timeout=10, interval=0.5)
         self.cm = model_registry.ModelRegistry(config.get_engine())

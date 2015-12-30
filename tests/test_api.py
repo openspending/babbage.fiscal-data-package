@@ -1,4 +1,4 @@
-from threading import Condition, Thread
+from threading import Semaphore, Thread
 import os
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -8,18 +8,18 @@ from flask.ext.testing import TestCase as FlaskTestCase
 
 from babbage_fiscal import config
 from babbage_fiscal.api import FDPLoaderBlueprint
-from test_common import SAMPLE_PACKAGE
+from test_common import SAMPLE_PACKAGES
 
-cv = Condition()
+cv = Semaphore(0)
 
+MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['md']
 
 class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self.send_response(200,'OK')
         try:
-            with cv:
-                cv.notify()
+            cv.release()
             return "OK"
         except Exception, e:
             print e
@@ -56,12 +56,11 @@ class TestAPI(FlaskTestCase):
             os.unlink('test.db')
 
     def test_load_package_success(self):
-        res = self.client.get(url_for('FDPLoader.load',package=SAMPLE_PACKAGE, callback='http://localhost:7878/callback'))
-        self.assertEquals(res.status_code, 200, "Bad status code %r" % res.status_code)
         th = MyHTTPServer()
         th.start()
-        with cv:
-            cv.wait()
+        res = self.client.get(url_for('FDPLoader.load',package=SAMPLE_PACKAGE, callback='http://localhost:7878/callback'))
+        self.assertEquals(res.status_code, 200, "Bad status code %r" % res.status_code)
+        cv.acquire()
         th.stop()
 
     def test_load_package_bad_parameters(self):

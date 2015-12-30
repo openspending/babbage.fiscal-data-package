@@ -14,7 +14,7 @@ class Model(Base):
     __tablename__ = 'models'
     id = Column(Unicode, primary_key=True)
     model = Column(Unicode)
-    schema = Column(Unicode)
+    package = Column(Unicode)
     origin_url = Column(String)
 
 
@@ -42,7 +42,7 @@ class ModelRegistry(object):
             rec = Model(id=name)
             self._session.add(rec)
         rec.model = json.dumps(model)
-        rec.schema = json.dumps(datapackage.metadata)
+        rec.package = json.dumps(datapackage.metadata)
         rec.origin_url = datapackage_url
         self._session.commit()
 
@@ -72,3 +72,14 @@ class ModelRegistry(object):
         if not self.has_model(name):
             raise KeyError(name)
         return json.loads(self._session.query(Model).filter(Model.id == name).first().model)
+
+    def get_package(self, name):
+        """
+        Return the original package contents associated with a specific name.
+        Raises KeyError in case the model doesn't exist.
+        :param name: model name to fetch
+        :return: Python object representing the package
+        """
+        if not self.has_model(name):
+            raise KeyError(name)
+        return json.loads(self._session.query(Model).filter(Model.id == name).first().package)

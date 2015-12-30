@@ -11,7 +11,7 @@ from .db_utils import database_name
 
 def _translator_iterator(iter,translations):
     for rec in iter:
-        yield dict((translations[k],v) for k,v in rec.items())
+        yield dict((translations[k]['name'],v) for k,v in zip(rec.headers,rec.values))
 
 class FDPLoader(object):
     """
@@ -50,7 +50,11 @@ class FDPLoader(object):
         for field in schema['fields']:
             name = database_name(field['name'], all_fields)
             all_fields.add(name)
-            field_translation[field['name']] = name
+            translated_field = {
+                'name': name,
+                'type': field['type']
+            }
+            field_translation[field['name']] = translated_field
             field['name'] = name
 
         # Load 1st resource data into DB

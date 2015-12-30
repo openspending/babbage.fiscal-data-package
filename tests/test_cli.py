@@ -7,8 +7,9 @@ from babbage_fiscal import model_registry, config
 
 from click.testing import CliRunner
 
-from test_common import SAMPLE_PACKAGE
+from test_common import SAMPLE_PACKAGES
 
+MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['md']
 
 class LoaderTest(TestCase):
 

@@ -2,7 +2,9 @@ from unittest import TestCase
 
 from babbage.cube import Cube
 from babbage_fiscal import config, loader, model_registry
-from test_common import SAMPLE_PACKAGE, NUM_RECORDS, MODEL_NAME
+from test_common import SAMPLE_PACKAGES, NUM_RECORDS
+
+MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['md']
 
 
 class RegistryTest(TestCase):
@@ -45,3 +47,12 @@ class RegistryTest(TestCase):
     def test_no_such_cube(self):
         cm = model_registry.ModelRegistry(config.get_engine())
         self.assertRaises(KeyError, cm.get_model, 'bla')
+
+    def test_get_package_correct_values(self):
+        cm = model_registry.ModelRegistry(config.get_engine())
+        package = cm.get_package(MODEL_NAME)
+        self.assertEquals(package['name'], MODEL_NAME, 'wrong model name')
+
+    def test_no_such_package(self):
+        cm = model_registry.ModelRegistry(config.get_engine())
+        self.assertRaises(KeyError, cm.get_package, 'bla')

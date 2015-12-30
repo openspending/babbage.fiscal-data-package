@@ -1,0 +1,476 @@
+{
+  "description": "The Country Regional Analysis published by HM Treasury (2010 version).\r\n\r\nSource data can be found in the [CKAN data package](http://ckan.net/package/ukgov-finances-cra)",
+  "resources": [
+    {
+      "schema": {
+        "fields": [
+          {
+            "description": "",
+            "type": "string",
+            "name": "openspending_id",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cofog2_color",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cofog2_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cofog2_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "to_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "to_description",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "to_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "boolean",
+            "name": "from_gov_department",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "from_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "from_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "number",
+            "name": "amount",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cofog3_color",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cofog3_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cofog3_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "hmt2_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "hmt2_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "unique_id",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cg_lg_or_pc_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cg_lg_or_pc_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "pog_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "pog_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "hmt1_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "hmt1_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "date",
+            "name": "time_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "integer",
+            "name": "time_year",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "integer",
+            "name": "time_month",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "integer",
+            "name": "time_day",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "integer",
+            "name": "time_week",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "integer",
+            "name": "time_yearmonth",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "integer",
+            "name": "time_quarter",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "date",
+            "name": "time",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cap_or_cur_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cap_or_cur_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "region_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "region_name",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cofog1_color",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cofog1_label",
+            "format": "default",
+            "title": ""
+          },
+          {
+            "description": "",
+            "type": "string",
+            "name": "cofog1_name",
+            "format": "default",
+            "title": ""
+          }
+        ]
+      },
+      "name": "dataset",
+      "path": "dataset.csv"
+    }
+  ],
+  "name": "ukgov-finances-cra",
+  "countryCode": [
+    "GB"
+  ],
+  "profiles": {
+    "tabular": "*",
+    "fiscal": "*"
+  },
+  "mapping": {
+    "dimensions": {
+      "cofog1": {
+        "attributes": {
+          "label": {
+            "source": "cofog1_label",
+            "labelfor": "name"
+          },
+          "color": {
+            "source": "cofog1_color"
+          },
+          "name": {
+            "source": "cofog1_name"
+          }
+        },
+        "primaryKey": "name"
+      },
+      "region": {
+        "attributes": {
+          "label": {
+            "source": "region_label",
+            "labelfor": "name"
+          },
+          "name": {
+            "source": "region_name"
+          }
+        },
+        "primaryKey": "name"
+      },
+      "time": {
+        "attributes": {
+          "label": {
+            "source": "time_name"
+          },
+          "day": {
+            "source": "time_day"
+          },
+          "month": {
+            "source": "time_month"
+          },
+          "year": {
+            "source": "time_year"
+          },
+          "yearmonth": {
+            "source": "time_yearmonth"
+          }
+        },
+        "primaryKey": "label",
+        "dimensionType": "datetime"
+      },
+      "cofog2": {
+        "attributes": {
+          "label": {
+            "source": "cofog2_label",
+            "labelfor": "name"
+          },
+          "color": {
+            "source": "cofog2_color"
+          },
+          "name": {
+            "source": "cofog2_name"
+          }
+        },
+        "primaryKey": "name"
+      },
+      "pog": {
+        "attributes": {
+          "label": {
+            "source": "pog_label",
+            "labelfor": "name"
+          },
+          "name": {
+            "source": "pog_name"
+          }
+        },
+        "primaryKey": "name"
+      },
+      "hmt1": {
+        "attributes": {
+          "label": {
+            "source": "hmt1_label",
+            "labelfor": "name"
+          },
+          "name": {
+            "source": "hmt1_name"
+          }
+        },
+        "primaryKey": "name"
+      },
+      "cap_or_cur": {
+        "attributes": {
+          "label": {
+            "source": "cap_or_cur_label",
+            "labelfor": "name"
+          },
+          "name": {
+            "source": "cap_or_cur_name"
+          }
+        },
+        "primaryKey": "name"
+      },
+      "to": {
+        "attributes": {
+          "label": {
+            "source": "to_label",
+            "labelfor": "name"
+          },
+          "description": {
+            "source": "to_description"
+          },
+          "name": {
+            "source": "to_name"
+          }
+        },
+        "primaryKey": "name",
+        "dimensionType": "entity"
+      },
+      "from": {
+        "attributes": {
+          "label": {
+            "source": "from_label",
+            "labelfor": "name"
+          },
+          "name": {
+            "source": "from_name"
+          },
+          "gov_department": {
+            "source": "from_gov_department"
+          }
+        },
+        "primaryKey": "name",
+        "dimensionType": "entity"
+      },
+      "cofog3": {
+        "attributes": {
+          "label": {
+            "source": "cofog3_label",
+            "labelfor": "name"
+          },
+          "color": {
+            "source": "cofog3_color"
+          },
+          "name": {
+            "source": "cofog3_name"
+          }
+        },
+        "primaryKey": "name"
+      },
+      "cg_lg_or_pc": {
+        "attributes": {
+          "label": {
+            "source": "cg_lg_or_pc_label",
+            "labelfor": "name"
+          },
+          "name": {
+            "source": "cg_lg_or_pc_name"
+          }
+        },
+        "primaryKey": "name"
+      },
+      "hmt2": {
+        "attributes": {
+          "label": {
+            "source": "hmt2_label",
+            "labelfor": "name"
+          },
+          "name": {
+            "source": "hmt2_name"
+          }
+        },
+        "primaryKey": "name"
+      },
+      "unique_id": {
+        "attributes": {
+          "label": {
+            "source": "unique_id"
+          }
+        },
+        "primaryKey": "label"
+      }
+    },
+    "measures": {
+      "amount": {
+        "currency": "GBP",
+        "source": "amount"
+      }
+    }
+  },
+  "title": "UK Country Regional Analysis"
+}

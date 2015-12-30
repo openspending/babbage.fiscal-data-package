@@ -22,8 +22,10 @@ def fdp_to_model(package, table_name, resource, field_translator):
             continue
         babbage_measure = {
             'label':name,
-            'column':field_translator[measure['source']],
+            'column':field_translator[measure['source']]['name'],
         }
+        if 'currency' in measure:
+            babbage_measure['currency'] = measure['currency']
         model['measures'][name]=babbage_measure
 
     # Converting dimensions
@@ -38,25 +40,40 @@ def fdp_to_model(package, table_name, resource, field_translator):
             if attr.has_key('labelfor'):
                 labels[attr['labelfor']] = label_name
         # Flattening multi-key dimensions into separate dimensions
-        for attr in primaryKeys:
+        for pkey in primaryKeys:
             if len(primaryKeys) > 1:
-                label = name + '.' + attr
+                label = name + '.' + pkey
+                dimname = name + '_' + pkey
             else:
                 label = name
-            source = field_translator[attributes[attr]['source']]
+                dimname = name
+            translated_field = field_translator[attributes[pkey]['source']]
+            source = translated_field['name']
+            type = translated_field['type']
             babbage_dimension = {
                 'attributes': {
-                    source: {'column':source,'label':attr}
+                    pkey: {'column': source, 'label': pkey, 'datatype': type}
                 },
                 'label': label,
-                'key_attribute': source,
+                'key_attribute': pkey,
                 'group': name,
             }
-            if labels.has_key(attr):
-                label = labels[attr]
-                label_source = field_translator[attributes[label]['source']]
-                babbage_dimension['attributes'][label_source] = {'column':label_source,'label':label}
+            if labels.has_key(pkey):
+                label = labels[pkey]
+                translated_label_field = field_translator[attributes[label]['source']]
+                label_source = translated_label_field['name']
+                label_type = translated_label_field['type']
+                babbage_dimension['attributes'][label] = {'column':label_source,'label':label,'datatype': label_type}
                 babbage_dimension['label_attribute'] = label_source
-            model['dimensions'][source] = babbage_dimension
+            if len(primaryKeys)==1:
+                # Copy other attributes as well
+                for attr_name, attr in attributes.items():
+                    if attr_name not in (pkey, labels.get(pkey)):
+                        translated_attr_field = field_translator[attributes[attr_name]['source']]
+                        attr_source = translated_attr_field['name']
+                        attr_type = translated_attr_field['type']
+                        babbage_dimension['attributes'][attr_name] = {'column': attr_source, 'label': attr_name, 'datatype': attr_type}
+
+            model['dimensions'][dimname] = babbage_dimension
 
     return model
