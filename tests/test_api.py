@@ -8,7 +8,7 @@ from flask.ext.testing import TestCase as FlaskTestCase
 
 from babbage_fiscal import config
 from babbage_fiscal.api import FDPLoaderBlueprint
-from test_common import SAMPLE_PACKAGES
+from .test_common import SAMPLE_PACKAGES
 
 cv = Semaphore(0)
 
@@ -17,12 +17,13 @@ MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['md']
 class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
-        self.send_response(200,'OK')
+        self.send_response(200, 'OK')
+        self.end_headers()
         try:
             cv.release()
             return "OK"
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
 
 
 class MyHTTPServer(Thread):

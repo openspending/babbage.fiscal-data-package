@@ -4,7 +4,7 @@ import os
 from unittest import TestCase
 
 from babbage_fiscal import config, loader, model_registry, tasks
-from test_common import SAMPLE_PACKAGES
+from .test_common import SAMPLE_PACKAGES
 
 class LoaderTest(TestCase):
 
@@ -26,7 +26,6 @@ class LoaderTest(TestCase):
         Simple loading of valid fdp's into DB
         """
         for MODEL_NAME, SAMPLE_PACKAGE in SAMPLE_PACKAGES.values():
-            print MODEL_NAME, SAMPLE_PACKAGE
             self.loader.load_fdp_to_db(SAMPLE_PACKAGE)
             self.cm = model_registry.ModelRegistry(config.get_engine())
         self.assertGreater(len(list(self.cm.list_models())), 1, 'no dataset was loaded')

@@ -28,6 +28,8 @@ def fdp_to_model(package, table_name, resource, field_translator):
             babbage_measure['currency'] = measure['currency']
         model['measures'][name]=babbage_measure
 
+    hierarchies = {}
+
     # Converting dimensions
     for name,dimension in mapping['dimensions'].items():
         attributes = dimension['attributes']
@@ -37,7 +39,7 @@ def fdp_to_model(package, table_name, resource, field_translator):
         # Marking which attributes have labels
         labels = {}
         for label_name, attr in attributes.items():
-            if attr.has_key('labelfor'):
+            if 'labelfor' in attr:
                 labels[attr['labelfor']] = label_name
         # Flattening multi-key dimensions into separate dimensions
         for pkey in primaryKeys:
@@ -56,9 +58,9 @@ def fdp_to_model(package, table_name, resource, field_translator):
                 },
                 'label': label,
                 'key_attribute': pkey,
-                'group': name,
             }
-            if labels.has_key(pkey):
+            hierarchies.setdefault(name, {'levels': []})['levels'].append(dimname)
+            if pkey in labels:
                 label = labels[pkey]
                 translated_label_field = field_translator[attributes[label]['source']]
                 label_source = translated_label_field['name']
@@ -75,5 +77,6 @@ def fdp_to_model(package, table_name, resource, field_translator):
                         babbage_dimension['attributes'][attr_name] = {'column': attr_source, 'label': attr_name, 'datatype': attr_type}
 
             model['dimensions'][dimname] = babbage_dimension
+        model['hierarchies'] = dict((k,v) for k,v in hierarchies.items() if len(v['levels']) > 1)
 
     return model

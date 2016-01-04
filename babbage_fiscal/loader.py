@@ -1,10 +1,10 @@
 import requests
 
-from model_registry import ModelRegistry
-from config import get_engine
 from datapackage import DataPackage
 from jtssql import SchemaTable
 
+from .model_registry import ModelRegistry
+from .config import get_engine
 from .fdp_utils import fdp_to_model
 from .db_utils import database_name
 

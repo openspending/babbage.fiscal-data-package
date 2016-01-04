@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from babbage.cube import Cube
 from babbage_fiscal import config, loader, model_registry
-from test_common import SAMPLE_PACKAGES, NUM_RECORDS
+from .test_common import SAMPLE_PACKAGES, NUM_RECORDS
 
 MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['md']
 

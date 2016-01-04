@@ -7,7 +7,7 @@ from babbage_fiscal import model_registry, config
 
 from click.testing import CliRunner
 
-from test_common import SAMPLE_PACKAGES
+from .test_common import SAMPLE_PACKAGES
 
 MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['md']
 
@@ -32,7 +32,5 @@ class LoaderTest(TestCase):
         result = self.runner.invoke(cli,
                            args=['load-fdp', '--package', SAMPLE_PACKAGE],
                            env={'FISCAL_PACKAGE_ENGINE':'sqlite:///test.db'})
-        print result
-        print result.output
         self.cm = model_registry.ModelRegistry(config.get_engine())
         self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')
