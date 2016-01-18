@@ -11,5 +11,8 @@ app.config_from_object('babbage_fiscal.celeryconfig')
 def load_fdp_task(package, callback, connection_string=None):
     if connection_string is not None:
         _set_connection_string(connection_string)
-    FDPLoader.load_fdp_to_db(package, get_engine())
-    ret = requests.get(callback)
+    try:
+        FDPLoader.load_fdp_to_db(package, get_engine())
+        requests.get(callback, params={'package': package, 'status': 'done'})
+    except Exception as e:
+        requests.get(callback, params={'package': package, 'status': 'fail', 'error': str(e)})
