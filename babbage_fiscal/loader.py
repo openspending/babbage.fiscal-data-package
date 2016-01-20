@@ -1,4 +1,4 @@
-import requests
+import time
 
 from datapackage import DataPackage
 from jtssql import SchemaTable
@@ -9,9 +9,14 @@ from .fdp_utils import fdp_to_model
 from .db_utils import database_name
 
 
-def _translator_iterator(iter,translations):
-    for rec in iter:
-        yield dict((translations[k]['name'],v) for k,v in zip(rec.headers,rec.values))
+def _translator_iterator(it, translations, callback):
+    count = 0
+    for rec in it:
+        count += 1
+        if count % 1000 == 0 and callback is not None:
+            callback(count)
+        yield dict((translations[k]['name'], v) for k, v in zip(rec.headers, rec.values))
+
 
 class FDPLoader(object):
     """
@@ -25,7 +30,7 @@ class FDPLoader(object):
             self.engine = engine
 
     @staticmethod
-    def load_fdp_to_db(package, engine = None):
+    def load_fdp_to_db(package, engine = None, callback=None):
         """
         Load an FDP to the database, create a babbage model and save it as well
         :param package: URL for the datapackage.json
@@ -62,7 +67,7 @@ class FDPLoader(object):
         if table.exists:
             table.drop()
         table.create()
-        table.load_iter(_translator_iterator(resource.data, field_translation))
+        table.load_iter(_translator_iterator(resource.data, field_translation, callback))
 
         # Create Babbage Model
         model = fdp_to_model(dpo, table_name, resource, field_translation)
