@@ -14,13 +14,15 @@ cv = Semaphore(0)
 
 MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['md']
 
+
 class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self.send_response(200, 'OK')
         self.end_headers()
         try:
-            cv.release()
+            if 'status=done' in self.path:
+                cv.release()
             return "OK"
         except Exception as e:
             print(e)
@@ -30,7 +32,7 @@ class MyHTTPServer(Thread):
 
     def __init__(self):
         super(MyHTTPServer, self).__init__()
-        self.server = HTTPServer(("localhost",7878), MyHandler)
+        self.server = HTTPServer(("localhost", 7878), MyHandler)
 
     def run(self):
         self.server.serve_forever()
@@ -64,9 +66,13 @@ class TestAPI(FlaskTestCase):
         cv.acquire()
         th.stop()
 
+
     def test_load_package_bad_parameters(self):
+        th = MyHTTPServer()
+        th.start()
         res = self.client.get(url_for('FDPLoader.load',packadge=SAMPLE_PACKAGE, callback='http://localhost:7878/callback'))
         self.assertEquals(res.status_code, 400, "Bad status code %r" % res.status_code)
+        th.stop()
 
 
 

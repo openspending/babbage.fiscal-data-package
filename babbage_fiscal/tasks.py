@@ -18,15 +18,15 @@ def do_request(callback, package, status, progress=None, error=None):
 
 @app.task
 def load_fdp_task(package, callback, connection_string=None):
-    def send_progress(count):
-        do_request(callback, package, 'progress', count)
+    def send_progress(status='progress', count=0):
+        do_request(callback, package, status, count)
     if connection_string is not None:
         _set_connection_string(connection_string)
     try:
         print("Starting to load %s" % package)
-        do_request(callback, package, 'progress', 0)
+        send_progress(status='starting')
         FDPLoader.load_fdp_to_db(package, get_engine(), send_progress)
-        do_request(callback, package, 'done')
+        send_progress(status='done')
         print("Finished to load %s" % package)
     except Exception as e:
         do_request(callback, package, 'error', error=repr(e))

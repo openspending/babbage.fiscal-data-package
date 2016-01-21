@@ -13,10 +13,13 @@ def _translator_iterator(it, translations, callback):
     count = 0
     for rec in it:
         count += 1
-        if count % 1000 == 0 and callback is not None:
-            callback(count)
+        if count % 1000 == 1 and callback is not None:
+            callback(count=count)
         yield dict((translations[k]['name'], v) for k, v in zip(rec.headers, rec.values))
 
+
+def noop(*args, **kw):
+    pass
 
 class FDPLoader(object):
     """
@@ -39,8 +42,13 @@ class FDPLoader(object):
         # Load and validate the datapackage
         if engine is None:
             engine = get_engine()
+        if callback is None:
+            callback = noop
+        callback(status='load-datapackage')
         dpo = DataPackage(package, schema='fiscal')
+        callback(status='validate-datapackage')
         dpo.validate()
+        callback(status='load-resource')
         resource = dpo.resources[0]
         schema = resource.metadata['schema']
 
@@ -63,12 +71,16 @@ class FDPLoader(object):
             field['name'] = name
 
         # Load 1st resource data into DB
+        callback(status='table-create')
         table = SchemaTable(engine, table_name, schema)
         if table.exists:
             table.drop()
         table.create()
+        callback(status='table-load')
         table.load_iter(_translator_iterator(resource.data, field_translation, callback))
 
         # Create Babbage Model
+        callback(status='model-create')
         model = fdp_to_model(dpo, table_name, resource, field_translation)
+        callback(status='model-save')
         registry.save_model(datapackage_name, package, dpo, model)
