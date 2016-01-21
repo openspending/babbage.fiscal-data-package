@@ -2,6 +2,8 @@ import os
 
 from unittest import TestCase
 
+from sqlalchemy.engine.reflection import Inspector
+
 from babbage_fiscal.cli import cli
 from babbage_fiscal import model_registry, config
 
@@ -34,3 +36,14 @@ class LoaderTest(TestCase):
                            env={'FISCAL_PACKAGE_ENGINE':'sqlite:///test.db'})
         self.cm = model_registry.ModelRegistry(config.get_engine())
         self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')
+
+    def test_create_tables_cmd_success(self):
+        """
+        Simple invocation of the create-tables command
+        """
+        result = self.runner.invoke(cli,
+                           args=['create-tables'],
+                           env={'FISCAL_PACKAGE_ENGINE':'sqlite:///test.db'})
+        engine = config.get_engine()
+        inspector = Inspector.from_engine(engine)
+        self.assertTrue('models' in inspector.get_table_names())
