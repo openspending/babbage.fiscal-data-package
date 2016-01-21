@@ -1,3 +1,6 @@
+from normality import slugify
+
+
 def fdp_to_model(package, table_name, resource, field_translator):
     """
     Create a Babbage Model from a Fiscal DataPackage descriptor
@@ -31,7 +34,8 @@ def fdp_to_model(package, table_name, resource, field_translator):
     hierarchies = {}
 
     # Converting dimensions
-    for name,dimension in mapping['dimensions'].items():
+    for origName,dimension in mapping['dimensions'].items():
+        name = slugify(origName, sep='_')
         attributes = dimension['attributes']
         primaryKeys = dimension['primaryKey']
         if not isinstance(primaryKeys,list):
@@ -65,9 +69,10 @@ def fdp_to_model(package, table_name, resource, field_translator):
                 translated_label_field = field_translator[attributes[label]['source']]
                 label_source = translated_label_field['name']
                 label_type = translated_label_field['type']
-                babbage_dimension['attributes'][label] = {'column':label_source,'label':label,'datatype': label_type}
+                babbage_dimension['attributes'][label] = \
+                    {'column': label_source, 'label': label, 'datatype': label_type}
                 babbage_dimension['label_attribute'] = label_source
-            if len(primaryKeys)==1:
+            if len(primaryKeys) == 1:
                 # Copy other attributes as well
                 for attr_name, attr in attributes.items():
                     if attr_name not in (pkey, labels.get(pkey)):
