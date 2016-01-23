@@ -29,6 +29,6 @@ def load_fdp_task(package, callback, connection_string=None):
         send_progress(status='done')
         print("Finished to load %s" % package)
     except Exception as e:
-        do_request(callback, package, 'error', error=repr(e))
+        do_request(callback, package, 'fail', error=repr(e))
         print("Failed to load %s: %r" % (package, e))
 

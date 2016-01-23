@@ -77,7 +77,7 @@ class FDPLoader(object):
             table.drop()
         table.create()
         callback(status='table-load')
-        table.load_iter(_translator_iterator(resource.data, field_translation, callback))
+        table.load_iter(_translator_iterator(resource.iter(), field_translation, callback))
 
         # Create Babbage Model
         callback(status='model-create')

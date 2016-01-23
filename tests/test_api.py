@@ -30,9 +30,9 @@ class MyHandler(BaseHTTPRequestHandler):
 
 class MyHTTPServer(Thread):
 
-    def __init__(self):
+    def __init__(self, port):
         super(MyHTTPServer, self).__init__()
-        self.server = HTTPServer(("localhost", 7878), MyHandler)
+        self.server = HTTPServer(("localhost", port), MyHandler)
 
     def run(self):
         self.server.serve_forever()
@@ -59,18 +59,17 @@ class TestAPI(FlaskTestCase):
             os.unlink('test.db')
 
     def test_load_package_success(self):
-        th = MyHTTPServer()
+        th = MyHTTPServer(7878)
         th.start()
         res = self.client.get(url_for('FDPLoader.load',package=SAMPLE_PACKAGE, callback='http://localhost:7878/callback'))
         self.assertEquals(res.status_code, 200, "Bad status code %r" % res.status_code)
         cv.acquire()
         th.stop()
 
-
     def test_load_package_bad_parameters(self):
-        th = MyHTTPServer()
+        th = MyHTTPServer(7879)
         th.start()
-        res = self.client.get(url_for('FDPLoader.load',packadge=SAMPLE_PACKAGE, callback='http://localhost:7878/callback'))
+        res = self.client.get(url_for('FDPLoader.load',packadge=SAMPLE_PACKAGE, callback='http://localhost:7879/callback'))
         self.assertEquals(res.status_code, 400, "Bad status code %r" % res.status_code)
         th.stop()
 
