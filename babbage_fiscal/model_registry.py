@@ -82,4 +82,7 @@ class ModelRegistry(object):
         """
         if not self.has_model(name):
             raise KeyError(name)
-        return json.loads(self._session.query(Model).filter(Model.id == name).first().package)
+        model = self._session.query(Model).filter(Model.id == name).first()
+        ret = json.loads(model.package)
+        ret['__origin_url'] = model.origin_url
+        return ret
