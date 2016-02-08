@@ -15,7 +15,7 @@ def _translator_iterator(it, translations, callback):
         count += 1
         if count % 1000 == 1 and callback is not None:
             callback(count=count)
-        yield dict((translations[k]['name'], v) for k, v in zip(rec.headers, rec.values))
+        yield dict((translations[k]['name'], v) for k, v in rec.items())
 
 
 def noop(*args, **kw):
