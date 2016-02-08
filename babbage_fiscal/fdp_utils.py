@@ -1,5 +1,7 @@
 from normality import slugify
 
+from .db_utils import database_name
+
 
 def fdp_to_model(package, table_name, resource, field_translator):
     """
@@ -20,12 +22,16 @@ def fdp_to_model(package, table_name, resource, field_translator):
     resource_name = resource.metadata['name']
 
     # Converting measures
-    for name,measure in mapping['measures'].items():
-        if resource_name != measure.get('resource',resource_name):
+    all_measures = set()
+    for orig_name, measure in mapping['measures'].items():
+        if resource_name != measure.get('resource', resource_name):
             continue
+        name = database_name(orig_name, all_measures, 'measure')
+        all_measures.add(name)
         babbage_measure = {
-            'label':name,
-            'column':field_translator[measure['source']]['name'],
+            'label': orig_name,
+            'column': field_translator[measure['source']]['name'],
+            'orig_measure': orig_name
         }
         if 'currency' in measure:
             babbage_measure['currency'] = measure['currency']
@@ -34,8 +40,10 @@ def fdp_to_model(package, table_name, resource, field_translator):
     hierarchies = {}
 
     # Converting dimensions
-    for origName,dimension in mapping['dimensions'].items():
-        name = slugify(origName, sep='_')
+    all_dimensions = set()
+    for orig_name,dimension in mapping['dimensions'].items():
+        name = database_name(orig_name, all_dimensions, 'dimension')
+        all_dimensions.add(name)
         attributes = dimension['attributes']
         primaryKeys = dimension['primaryKey']
         if not isinstance(primaryKeys,list):
@@ -58,10 +66,12 @@ def fdp_to_model(package, table_name, resource, field_translator):
             type = translated_field['type']
             babbage_dimension = {
                 'attributes': {
-                    pkey: {'column': source, 'label': pkey, 'datatype': type}
+                    pkey: {'column': source, 'label': pkey,
+                           'datatype': type, 'orig_attribute': pkey}
                 },
                 'label': label,
                 'key_attribute': pkey,
+                'orig_dimension': orig_name
             }
             hierarchies.setdefault(name, {'levels': []})['levels'].append(dimname)
             if pkey in labels:
@@ -69,8 +79,10 @@ def fdp_to_model(package, table_name, resource, field_translator):
                 translated_label_field = field_translator[attributes[label]['source']]
                 label_source = translated_label_field['name']
                 label_type = translated_label_field['type']
-                babbage_dimension['attributes'][label] = \
-                    {'column': label_source, 'label': label, 'datatype': label_type}
+                babbage_dimension['attributes'][label] = {
+                    'column': label_source, 'label': label,
+                    'datatype': label_type, 'orig_attribute': label
+                }
                 babbage_dimension['label_attribute'] = label_source
             if len(primaryKeys) == 1:
                 # Copy other attributes as well
@@ -79,7 +91,10 @@ def fdp_to_model(package, table_name, resource, field_translator):
                         translated_attr_field = field_translator[attributes[attr_name]['source']]
                         attr_source = translated_attr_field['name']
                         attr_type = translated_attr_field['type']
-                        babbage_dimension['attributes'][attr_name] = {'column': attr_source, 'label': attr_name, 'datatype': attr_type}
+                        babbage_dimension['attributes'][attr_name] = {
+                            'column': attr_source, 'label': attr_name,
+                            'datatype': attr_type, 'orig_attribute': attr_name
+                        }
 
             model['dimensions'][dimname] = babbage_dimension
         model['hierarchies'] = dict((k,v) for k,v in hierarchies.items() if len(v['levels']) > 1)

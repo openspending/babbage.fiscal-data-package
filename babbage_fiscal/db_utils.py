@@ -10,11 +10,11 @@ def model_name(name):
     return TABLE_NAME_PREFIX + column.strip('_')
 
 
-def database_name(name, names=[]):
+def database_name(name, names=[], default='column'):
     """ Generate a normalized version of the column name. """
     column = slugify(name or '', sep='_')
     column = column.strip('_')
-    column = 'column' if not len(column) else column
+    column = default if not len(column) else column
     name, i = column, 2
     _name = name
     # de-dupe: column, column_2, column_3, ...
