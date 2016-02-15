@@ -22,12 +22,12 @@ def fdp_to_model(package, table_name, resource, field_translator):
     resource_name = resource.metadata['name']
 
     # Converting measures
-    all_measures = set()
+    all_concepts = set()
     for orig_name, measure in mapping['measures'].items():
         if resource_name != measure.get('resource', resource_name):
             continue
-        name = database_name(orig_name, all_measures, 'measure')
-        all_measures.add(name)
+        name = database_name(orig_name, all_concepts, 'measure')
+        all_concepts.add(name)
         babbage_measure = {
             'label': orig_name,
             'column': field_translator[measure['source']]['name'],
@@ -40,11 +40,17 @@ def fdp_to_model(package, table_name, resource, field_translator):
     hierarchies = {}
 
     # Converting dimensions
-    all_dimensions = set()
-    for orig_name,dimension in mapping['dimensions'].items():
-        name = database_name(orig_name, all_dimensions, 'dimension')
-        all_dimensions.add(name)
+    for orig_name, dimension in mapping['dimensions'].items():
+        # Normalize the dimension name
+        name = database_name(orig_name, all_concepts, 'dimension')
+        all_concepts.add(name)
+
+        attribute_names = {}
         attributes = dimension['attributes']
+        for orig_attr_name in attributes.keys():
+            attr_name = database_name(orig_attr_name, attribute_names.values(), 'attr')
+            attribute_names[orig_attr_name] = attr_name
+
         primaryKeys = dimension['primaryKey']
         if not isinstance(primaryKeys,list):
             primaryKeys = [primaryKeys]
@@ -55,43 +61,49 @@ def fdp_to_model(package, table_name, resource, field_translator):
                 labels[attr['labelfor']] = label_name
         # Flattening multi-key dimensions into separate dimensions
         for pkey in primaryKeys:
+            # Get slugified name
+            translated_pkey = attribute_names[pkey]
+            # Get name for the dimension (depending on the number of primary keys)
             if len(primaryKeys) > 1:
-                label = name + '.' + pkey
-                dimname = name + '_' + pkey
+                label = name + '.' + translated_pkey
+                dimname = name + '_' + translated_pkey
             else:
                 label = name
                 dimname = name
+            # Create dimension and key attribute
             translated_field = field_translator[attributes[pkey]['source']]
             source = translated_field['name']
             type = translated_field['type']
             babbage_dimension = {
                 'attributes': {
-                    pkey: {'column': source, 'label': pkey,
+                    translated_pkey: {'column': source, 'label': pkey,
                            'datatype': type, 'orig_attribute': pkey}
                 },
                 'label': label,
-                'key_attribute': pkey,
+                'key_attribute': translated_pkey,
                 'orig_dimension': orig_name
             }
+            # Update hierarchies
             hierarchies.setdefault(name, {'levels': []})['levels'].append(dimname)
+            # Add label attributes (if any)
             if pkey in labels:
                 label = labels[pkey]
                 translated_label_field = field_translator[attributes[label]['source']]
                 label_source = translated_label_field['name']
                 label_type = translated_label_field['type']
-                babbage_dimension['attributes'][label] = {
+                babbage_dimension['attributes'][attribute_names[label]] = {
                     'column': label_source, 'label': label,
                     'datatype': label_type, 'orig_attribute': label
                 }
                 babbage_dimension['label_attribute'] = label_source
+            # Copy other attributes as well (if there's just one primary key attribute)
             if len(primaryKeys) == 1:
-                # Copy other attributes as well
                 for attr_name, attr in attributes.items():
                     if attr_name not in (pkey, labels.get(pkey)):
                         translated_attr_field = field_translator[attributes[attr_name]['source']]
                         attr_source = translated_attr_field['name']
                         attr_type = translated_attr_field['type']
-                        babbage_dimension['attributes'][attr_name] = {
+                        babbage_dimension['attributes'][attribute_names[attr_name]] = {
                             'column': attr_source, 'label': attr_name,
                             'datatype': attr_type, 'orig_attribute': attr_name
                         }
