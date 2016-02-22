@@ -18,7 +18,7 @@ def fdp_to_model(package, table_name, resource, field_translator):
         'dimensions': {}
     }
 
-    mapping = package.metadata['mapping']
+    mapping = package.metadata['model']
     resource_name = resource.metadata['name']
 
     # Converting measures
