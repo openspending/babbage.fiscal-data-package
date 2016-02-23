@@ -157,7 +157,7 @@
     }
   ],
   "description": "",
-  "mapping": {
+  "model": {
     "measures": {
       "approved": {
         "source": "approved",
