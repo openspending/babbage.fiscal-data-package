@@ -55,7 +55,9 @@ class FDPLoader(object):
         # Use the cube manager to get the table name
         registry = ModelRegistry(engine)
         datapackage_name = dpo.metadata['name']
-        table_name = registry.table_name_for_package( datapackage_name )
+        datapackage_owner = dpo.metadata['owner']
+        model_name = "{0}:{1}".format(datapackage_owner, datapackage_name)
+        table_name = registry.table_name_for_package(datapackage_owner, datapackage_name)
 
         all_fields = set()
         field_translation = {}
@@ -83,4 +85,4 @@ class FDPLoader(object):
         callback(status='model-create')
         model = fdp_to_model(dpo, table_name, resource, field_translation)
         callback(status='model-save')
-        registry.save_model(datapackage_name, package, dpo, model)
+        registry.save_model(model_name, package, dpo, model)
