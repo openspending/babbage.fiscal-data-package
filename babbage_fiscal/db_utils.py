@@ -1,13 +1,14 @@
 # coding: utf-8
 from normality import slugify
 
-TABLE_NAME_PREFIX = "fdp_"
+TABLE_NAME_PREFIX = "fdp__"
 
 
-def model_name(name):
+def model_name(owner, name):
     """ Generate a normalized version of a model name. """
-    column = slugify(name or '', sep='_')
-    return TABLE_NAME_PREFIX + column.strip('_')
+    name = slugify(name or '', sep='_').strip('_')
+    owner = slugify(owner or '', sep='_').strip('_')
+    return TABLE_NAME_PREFIX + owner + '__' + name
 
 
 def database_name(name, names=[], default='column'):

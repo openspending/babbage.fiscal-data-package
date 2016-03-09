@@ -26,8 +26,8 @@ class ModelRegistry(object):
         self._session = sessionmaker(bind=engine)()
 
     @staticmethod
-    def table_name_for_package(datapackage_name):
-        return model_name(datapackage_name)
+    def table_name_for_package(datapackage_owner, datapackage_name):
+        return model_name(datapackage_owner, datapackage_name)
 
     def save_model(self, name, datapackage_url, datapackage, model):
         """

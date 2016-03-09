@@ -30,7 +30,8 @@ class RegistryTest(TestCase):
     def test_get_cube_model_correct_values(self):
         cm = model_registry.ModelRegistry(config.get_engine())
         model = cm.get_model(MODEL_NAME)
-        self.assertEquals(model['fact_table'],'fdp_'+MODEL_NAME.replace('-','_'),'bad model')
+        expected = MODEL_NAME.replace('-', '_').replace(':', '__').replace('@', '_').replace('.', '_')
+        self.assertEquals(model['fact_table'],'fdp__'+expected,'bad model')
 
     def test_get_cube_correct_values(self):
         cm = model_registry.ModelRegistry(config.get_engine())
@@ -51,7 +52,7 @@ class RegistryTest(TestCase):
     def test_get_package_correct_values(self):
         cm = model_registry.ModelRegistry(config.get_engine())
         package = cm.get_package(MODEL_NAME)
-        self.assertEquals(package['name'], MODEL_NAME, 'wrong model name')
+        self.assertEquals(package['owner']+':'+package['name'], MODEL_NAME, 'wrong model name')
 
     def test_no_such_package(self):
         cm = model_registry.ModelRegistry(config.get_engine())
