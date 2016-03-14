@@ -2,7 +2,7 @@ import time
 import email.utils
 
 from datapackage import DataPackage
-from jtssql import SchemaTable
+from jsontableschema_sql import Storage
 
 from .model_registry import ModelRegistry
 from .config import get_engine
@@ -10,13 +10,13 @@ from .fdp_utils import fdp_to_model
 from .db_utils import database_name
 
 
-def _translator_iterator(it, translations, callback):
+def _translator_iterator(it, field_order, callback):
     count = 0
     for rec in it:
         count += 1
         if count % 1000 == 1 and callback is not None:
             callback(count=count)
-        yield dict((translations[k]['name'], v) for k, v in rec.items())
+        yield tuple(rec[k] for k in field_order)
 
 
 def noop(*args, **kw):
@@ -70,6 +70,7 @@ class FDPLoader(object):
 
         all_fields = set()
         field_translation = {}
+        field_order = []
         # Process schema - slugify field names
         for field in schema['fields']:
             name = database_name(field['name'], all_fields)
@@ -79,16 +80,17 @@ class FDPLoader(object):
                 'type': field['type']
             }
             field_translation[field['name']] = translated_field
+            field_order.append(field['name'])
             field['name'] = name
 
         # Load 1st resource data into DB
         callback(status='table-create')
-        table = SchemaTable(engine, table_name, schema)
-        if table.exists:
-            table.drop()
-        table.create()
+        storage = Storage(engine)
+        if storage.check(table_name):
+            storage.delete(table_name)
+        storage.create(table_name, schema)
         callback(status='table-load')
-        table.load_iter(_translator_iterator(resource.iter(), field_translation, callback))
+        storage.write(table_name, _translator_iterator(resource.iter(), field_order, callback))
 
         # Create Babbage Model
         callback(status='model-create')

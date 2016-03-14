@@ -167,7 +167,7 @@
           },
           {
             "description": "",
-            "type": "date",
+            "type": "string",
             "name": "time_name",
             "format": "default",
             "title": ""
@@ -216,7 +216,7 @@
           },
           {
             "description": "",
-            "type": "date",
+            "type": "string",
             "name": "time",
             "format": "default",
             "title": ""

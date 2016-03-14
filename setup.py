@@ -34,7 +34,7 @@ setup(
         'sqlalchemy',
         'click',
         'datapackage',
-        'jtssql',
+        'jsontableschema',
         'celery',
         'elasticsearch>=2.0.0'
     ],
