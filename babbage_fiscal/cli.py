@@ -22,5 +22,5 @@ def load_fdp(package):
 
 @cli.command(name="create-tables")
 def create_tables():
-    list(ModelRegistry(get_engine()).list_models())
+    list(ModelRegistry().list_models())
 

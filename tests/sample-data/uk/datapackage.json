@@ -278,6 +278,7 @@
   ],
   "name": "ukgov-finances-cra",
   "owner": "officer@data.gov.uk",
+  "author": "Testy McTest <test@test.com>",
   "countryCode": [
     "GB"
   ],

@@ -1,4 +1,5 @@
 import time
+import email.utils
 
 from datapackage import DataPackage
 from jtssql import SchemaTable
@@ -20,6 +21,7 @@ def _translator_iterator(it, translations, callback):
 
 def noop(*args, **kw):
     pass
+
 
 class FDPLoader(object):
     """
@@ -53,9 +55,16 @@ class FDPLoader(object):
         schema = resource.metadata['schema']
 
         # Use the cube manager to get the table name
-        registry = ModelRegistry(engine)
+        registry = ModelRegistry()
         datapackage_name = dpo.metadata['name']
         datapackage_owner = dpo.metadata['owner']
+        datapackage_author = dpo.metadata['author']
+
+        # Get the full name from the author field, and rewrite it without the email
+        fullname, email_addr = email.utils.parseaddr(datapackage_author)
+        email_addr = email_addr.split('@')[0] + '@not.shown'
+        dpo.metadata['author'] = '{0} <{1}>'.format(fullname, email_addr)
+
         model_name = "{0}:{1}".format(datapackage_owner, datapackage_name)
         table_name = registry.table_name_for_package(datapackage_owner, datapackage_name)
 
@@ -85,4 +94,6 @@ class FDPLoader(object):
         callback(status='model-create')
         model = fdp_to_model(dpo, table_name, resource, field_translation)
         callback(status='model-save')
-        registry.save_model(model_name, package, dpo, model)
+        registry.save_model(model_name, package, dpo.metadata,
+                            model, datapackage_name, fullname)
+        return model_name, dpo.metadata, model
