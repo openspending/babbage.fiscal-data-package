@@ -4,6 +4,7 @@
   "license": "PDDL-1.0",
   "name": "boost-moldova",
   "owner": "example@example.com",
+  "author": "Testy McTest <test@test.com>",
   "title": "Moldova BOOST",
   "version": "0.1.0",
   "fiscalPeriod": {

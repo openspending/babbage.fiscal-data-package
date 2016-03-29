@@ -36,6 +36,7 @@ setup(
         'datapackage',
         'jtssql',
         'celery',
+        'elasticsearch>=2.0.0'
     ],
     tests_require=[
         'nose',

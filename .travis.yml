@@ -9,10 +9,14 @@ python:
 addons:
     postgresql: "9.4"
 
+services:
+    - elasticsearch
+
 env:
     global:
         - CELERY_CONFIG='sqla+sqlite:///celerydb.sqlite'
         - CELERY_BACKEND_CONFIG='db+sqlite:///results.db'
+        - OS_ELASTICSEARCH_ADDRESS=localhost:9200
 before_install:
     - virtualenv ./pyenv --distribute
     - source ./pyenv/bin/activate
@@ -25,9 +29,13 @@ install:
 before_script:
     - psql -c 'create database os;' -U postgres
     - python -m pytest --version
+    - sleep 10
 script:
     - python -m celery -A babbage_fiscal.tasks worker &
     - python -m coverage run --source babbage_fiscal -m pytest tests/
     - CELERY_ALWAYS_EAGER=true python -m coverage run --source babbage_fiscal -m pytest tests/
 after_success:
     - coveralls
+notifications:
+    slack:
+        secure: itilSNb+mPfwlteNYi0NOx0PVlDjxBgeYW8+lNFsNxZK4WmmXN0YrXZYkOnh6io17qg6gDPe8RLnlMGgBL15RZaiUUJbD5pFOBvi90ZZRlUwzKHC6OqyGblRUvMkMfjl92x7C4ID1w8iYNTo+FtrgaMdVEQalgeScwioyfDaZI/sAU/wV7BhZV3sKa3FNUmmtVLYjgOuha3dzkILlHtFAiWkf6WvpoCItBqihV7StvtO2jP8t337NpR+EuCfsIWNL7/i3HqwlsawCm02Y4f0vgKxKY9Arrt+O6AwezmDshZ2qFTBV1lSnRtiTtdFtrv7oSmKKb1steTHqVgQBMwe5HVLwj4gg3RxRV6SNet+X8M4BaAbDGvrrUAGf1TmosCQaV4ZKJ4P0c5mNlC0qUQLSDhheiaW9kDp8rDEQQ0z439zeIlnp1UT3c4yr+lTmRouB5T5HfRQQsyfUAp1V+JW341KU2fFNkhGI9NJv0n9zmVK+dnjKMGcvN1XiaIPACtEAysSfcmnu83yWzREhdrGtlS4s5yXvnP26z7Ecdd9kTaLe9Zkf7GhRK+R+2THb9/qNZfinGyyFcTUrzcm6kQafYACtrsZx6FxAcvrUC+TMSmxxhkJRDAbnw8J4jjifkDk69aUwaQbAtgn4hgZ2N7HkZk2X0UlMTKpZqv+6uI9Izc=
