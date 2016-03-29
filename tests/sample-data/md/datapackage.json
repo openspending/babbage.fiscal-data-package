@@ -57,22 +57,34 @@
           {
             "name": "admin4 (code)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "constraints": {
+              "required":false
+            }
           },
           {
             "name": "admin4 (label)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "constraints": {
+              "required":false
+            }
           },
           {
             "name": "admin5 (code)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "constraints": {
+              "required":false
+            }
           },
           {
             "name": "admin5 (label)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "constraints": {
+              "required":false
+            }
           },
           {
             "name": "admin6 (code)",
