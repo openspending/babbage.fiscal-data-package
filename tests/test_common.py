@@ -7,3 +7,4 @@ SAMPLE_PACKAGES = {
     'uk': (u'officer@data.gov.uk:ukgov-finances-cra', os.path.abspath('tests/sample-data/uk/datapackage.json')),
 }
 NUM_RECORDS = 2000
+LOCAL_ELASTICSEARCH='localhost:9200'

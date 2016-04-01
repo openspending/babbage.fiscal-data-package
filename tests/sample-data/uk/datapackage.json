@@ -167,7 +167,7 @@
           },
           {
             "description": "",
-            "type": "date",
+            "type": "string",
             "name": "time_name",
             "format": "default",
             "title": ""
@@ -216,7 +216,7 @@
           },
           {
             "description": "",
-            "type": "date",
+            "type": "string",
             "name": "time",
             "format": "default",
             "title": ""
@@ -278,6 +278,7 @@
   ],
   "name": "ukgov-finances-cra",
   "owner": "officer@data.gov.uk",
+  "author": "Testy McTest <test@test.com>",
   "countryCode": [
     "GB"
   ],

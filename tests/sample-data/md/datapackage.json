@@ -4,6 +4,7 @@
   "license": "PDDL-1.0",
   "name": "boost-moldova",
   "owner": "example@example.com",
+  "author": "Testy McTest <test@test.com>",
   "title": "Moldova BOOST",
   "version": "0.1.0",
   "fiscalPeriod": {
@@ -56,22 +57,34 @@
           {
             "name": "admin4 (code)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "constraints": {
+              "required":false
+            }
           },
           {
             "name": "admin4 (label)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "constraints": {
+              "required":false
+            }
           },
           {
             "name": "admin5 (code)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "constraints": {
+              "required":false
+            }
           },
           {
             "name": "admin5 (label)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "constraints": {
+              "required":false
+            }
           },
           {
             "name": "admin6 (code)",

@@ -3,12 +3,13 @@ import os
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+from elasticsearch import Elasticsearch, NotFoundError
 from flask import Flask, url_for
 from flask.ext.testing import TestCase as FlaskTestCase
 
 from babbage_fiscal import config
 from babbage_fiscal.api import FDPLoaderBlueprint
-from .test_common import SAMPLE_PACKAGES
+from .test_common import SAMPLE_PACKAGES, LOCAL_ELASTICSEARCH
 
 cv = Semaphore(0)
 
@@ -53,6 +54,11 @@ class TestAPI(FlaskTestCase):
 
     def setUp(self):
         super(TestAPI, self).setUp()
+        self.es = Elasticsearch(hosts=[LOCAL_ELASTICSEARCH])
+        try:
+            self.es.indices.delete(index='packages')
+        except NotFoundError:
+            pass
 
     def tearDown(self):
         if os.path.exists('test.db'):
