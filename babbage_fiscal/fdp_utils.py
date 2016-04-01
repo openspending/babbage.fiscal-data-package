@@ -109,6 +109,6 @@ def fdp_to_model(package, table_name, resource, field_translator):
                         }
 
             model['dimensions'][dimname] = babbage_dimension
-        model['hierarchies'] = dict((k,v) for k,v in hierarchies.items() if len(v['levels']) > 1)
+        model['hierarchies'] = dict((k,v) for k,v in hierarchies.items())
 
     return model

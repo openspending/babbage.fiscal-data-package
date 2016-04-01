@@ -1,4 +1,6 @@
 import time
+import email.utils
+import logging
 
 from datapackage import DataPackage
 from jtssql import SchemaTable
@@ -11,11 +13,13 @@ from .db_utils import database_name
 
 def _translator_iterator(it, translations, callback):
     count = 0
+    print("_translator_iterator %r, %r, %r" % (it, field_order, callback))
     for rec in it:
         count += 1
         if count % 1000 == 1 and callback is not None:
             callback(count=count)
-        yield dict((translations[k]['name'], v) for k, v in rec.items())
+        rec = (count,) + tuple(rec[k] for k in field_order)
+        yield rec
 
 
 def noop(*args, **kw):
@@ -71,6 +75,13 @@ class FDPLoader(object):
             }
             field_translation[field['name']] = translated_field
             field['name'] = name
+
+        # Add Primary key to schema
+        schema['fields'].insert(0, {
+            'name': '_id',
+            'type': 'integer'
+        })
+        schema['primaryKey'] = '_id'
 
         # Load 1st resource data into DB
         callback(status='table-create')
