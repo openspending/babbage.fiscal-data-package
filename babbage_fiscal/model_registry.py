@@ -17,7 +17,9 @@ class ModelRegistry(object):
 
     def __init__(self, es=None):
         if es is None:
+            logging.info('Attempting to connect to ES: {0}'.format(OS_ELASTICSEARCH_ADDRESS))
             self.es = Elasticsearch(hosts=[OS_ELASTICSEARCH_ADDRESS])
+            logging.info('Successful connection to ES')
         else:
             self.es = es
 

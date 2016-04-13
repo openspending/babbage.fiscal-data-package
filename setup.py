@@ -36,7 +36,7 @@ setup(
         'datapackage',
         'jsontableschema',
         'celery',
-        'elasticsearch>=2.0.0'
+        'elasticsearch>=1.0.0,<2.0.0'
     ],
     tests_require=[
         'nose',

@@ -12,7 +12,6 @@ from .db_utils import database_name
 
 def _translator_iterator(it, field_order, callback):
     count = 0
-    print("_translator_iterator %r, %r, %r" % (it, field_order, callback))
     for rec in it:
         count += 1
         if count % 1000 == 1 and callback is not None:

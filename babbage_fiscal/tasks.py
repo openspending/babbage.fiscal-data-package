@@ -1,4 +1,5 @@
 import json
+import traceback
 
 from celery import Celery
 import requests
@@ -39,5 +40,6 @@ def load_fdp_task(package, callback, connection_string=None):
         print("Finished to load %s" % package)
     except Exception as e:
         do_request(callback, package, 'fail', error=repr(e))
+        traceback.print_exc()
         print("Failed to load %s: %r" % (package, e))
 
