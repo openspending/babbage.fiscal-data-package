@@ -1,5 +1,3 @@
-from normality import slugify
-
 from .db_utils import database_name
 
 
@@ -19,6 +17,8 @@ def fdp_to_model(package, table_name, resource, field_translator):
     }
 
     mapping = package.metadata['model']
+    schema = resource.metadata['schema']['fields']
+    field_titles = dict((f.get('name'), f.get('title', f.get('name'))) for f in schema)
     resource_name = resource.metadata['name']
 
     # Converting measures
@@ -29,7 +29,7 @@ def fdp_to_model(package, table_name, resource, field_translator):
         name = database_name(orig_name, all_concepts, 'measure')
         all_concepts.add(name)
         babbage_measure = {
-            'label': orig_name,
+            'label': field_titles.get(measure['source'], measure['source']),
             'column': field_translator[measure['source']]['name'],
             'orig_measure': orig_name
         }
@@ -65,37 +65,45 @@ def fdp_to_model(package, table_name, resource, field_translator):
             translated_pkey = attribute_names[pkey]
             # Get name for the dimension (depending on the number of primary keys)
             if len(primaryKeys) > 1:
-                label = name + '.' + translated_pkey
-                dimname = name + '_' + translated_pkey
+                dimname = database_name(orig_name + '_' + translated_pkey, all_concepts, 'dimension')
             else:
-                label = name
-                dimname = name
+                dimname = database_name(orig_name, all_concepts, 'dimension')
+            label = field_titles[attributes[pkey]['source']]
+            all_concepts.add(dimname)
             # Create dimension and key attribute
             translated_field = field_translator[attributes[pkey]['source']]
             source = translated_field['name']
             type = translated_field['type']
             babbage_dimension = {
                 'attributes': {
-                    translated_pkey: {'column': source, 'label': pkey,
-                           'datatype': type, 'orig_attribute': pkey}
+                    translated_pkey:
+                        {'column': source,
+                         'label': field_titles[attributes[pkey]['source']],
+                         'datatype': type,
+                         'orig_attribute': pkey}
                 },
                 'label': label,
                 'key_attribute': translated_pkey,
                 'orig_dimension': orig_name
             }
             # Update hierarchies
-            hierarchies.setdefault(name, {'levels': []})['levels'].append(dimname)
+            hierarchies.setdefault(name, {'levels': [],
+                                          'label': name.replace('_',' ').title()}
+                                   )['levels'].append(dimname)
             # Add label attributes (if any)
             if pkey in labels:
                 label = labels[pkey]
                 translated_label_field = field_translator[attributes[label]['source']]
                 label_source = translated_label_field['name']
                 label_type = translated_label_field['type']
-                babbage_dimension['attributes'][attribute_names[label]] = {
-                    'column': label_source, 'label': label,
-                    'datatype': label_type, 'orig_attribute': label
-                }
-                babbage_dimension['label_attribute'] = label_source
+                babbage_dimension['attributes'][attribute_names[label]] = \
+                    {
+                        'column': label_source,
+                        'label': field_titles[attributes[label]['source']],
+                        'datatype': label_type,
+                        'orig_attribute': label
+                    }
+                babbage_dimension['label_attribute'] = attribute_names[label]
             # Copy other attributes as well (if there's just one primary key attribute)
             if len(primaryKeys) == 1:
                 for attr_name, attr in attributes.items():
@@ -103,11 +111,13 @@ def fdp_to_model(package, table_name, resource, field_translator):
                         translated_attr_field = field_translator[attributes[attr_name]['source']]
                         attr_source = translated_attr_field['name']
                         attr_type = translated_attr_field['type']
-                        babbage_dimension['attributes'][attribute_names[attr_name]] = {
-                            'column': attr_source, 'label': attr_name,
-                            'datatype': attr_type, 'orig_attribute': attr_name
-                        }
-
+                        babbage_dimension['attributes'][attribute_names[attr_name]] = \
+                            {
+                                'column': attr_source,
+                                'label': field_titles[attributes[attr_name]['source']],
+                                'datatype': attr_type,
+                                'orig_attribute': attr_name
+                            }
             model['dimensions'][dimname] = babbage_dimension
         model['hierarchies'] = dict((k,v) for k,v in hierarchies.items())
 
