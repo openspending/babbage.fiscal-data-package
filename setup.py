@@ -30,7 +30,7 @@ setup(
     test_suite='nose.collector',
     install_requires=[
         'babbage >= 0.1.1',
-        'normality',
+        'awesome-slugify',
         'sqlalchemy',
         'click',
         'datapackage',

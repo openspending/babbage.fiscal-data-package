@@ -82,21 +82,31 @@ class FDPLoader(object):
             }
             field_translation[field['name']] = translated_field
             field_order.append(field['name'])
-            field['name'] = name
+
+        storage_schema = {
+            'fields': [
+                {
+                    'type': f['type'],
+                    'name': field_translation[f['name']]['name']
+                }
+                for f in schema['fields']
+            ],
+            # Babbage likes just one primary key
+            'primaryKey': '_id'
+        }
 
         # Add Primary key to schema
-        schema['fields'].insert(0, {
+        storage_schema['fields'].insert(0, {
             'name': '_id',
             'type': 'integer'
         })
-        schema['primaryKey'] = '_id'
 
         # Load 1st resource data into DB
         callback(status='table-create')
         storage = Storage(engine)
         if storage.check(table_name):
             storage.delete(table_name)
-        storage.create(table_name, schema)
+        storage.create(table_name, storage_schema)
         callback(status='table-load')
         storage.write(table_name, _translator_iterator(resource.iter(), field_order, callback))
 
