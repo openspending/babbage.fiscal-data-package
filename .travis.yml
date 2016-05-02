@@ -31,7 +31,7 @@ install:
 before_script:
     - psql -c 'create database os;' -U postgres
     - python -m pytest --version
-    - sleep 10
+    - sleep 30
 script:
     - python -m celery -A babbage_fiscal.tasks worker &
     - python -m coverage run --source babbage_fiscal -m pytest tests/

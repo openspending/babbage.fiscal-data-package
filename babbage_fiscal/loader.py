@@ -4,6 +4,7 @@ import email.utils
 from datapackage import DataPackage
 from jsontableschema_sql import Storage
 
+from babbage_fiscal.callbacks import *
 from .model_registry import ModelRegistry
 from .config import get_engine
 from .fdp_utils import fdp_to_model
@@ -47,11 +48,11 @@ class FDPLoader(object):
             engine = get_engine()
         if callback is None:
             callback = noop
-        callback(status='load-datapackage')
+        callback(status=STATUS_LOADING_DATAPACKAGE)
         dpo = DataPackage(package, schema='fiscal')
-        callback(status='validate-datapackage')
+        callback(status=STATUS_VALIDATING_DATAPACKAGE)
         dpo.validate()
-        callback(status='load-resource')
+        callback(status=STATUS_LOADING_RESOURCE)
         resource = dpo.resources[0]
         schema = resource.metadata['schema']
 
@@ -90,7 +91,7 @@ class FDPLoader(object):
                     'name': field_translation[f['name']]['name']
                 }
                 for f in schema['fields']
-            ],
+                ],
             # Babbage likes just one primary key
             'primaryKey': '_id'
         }
@@ -102,18 +103,19 @@ class FDPLoader(object):
         })
 
         # Load 1st resource data into DB
-        callback(status='table-create')
         storage = Storage(engine)
         if storage.check(table_name):
+            callback(status=STATUS_DELETING_TABLE)
             storage.delete(table_name)
+        callback(status=STATUS_CREATING_TABLE)
         storage.create(table_name, storage_schema)
-        callback(status='table-load')
+        callback(status=STATUS_LOADING_DATA_READY)
         storage.write(table_name, _translator_iterator(resource.iter(), field_order, callback))
 
         # Create Babbage Model
-        callback(status='model-create')
+        callback(status=STATUS_CREATING_BABBAGE_MODEL)
         model = fdp_to_model(dpo, table_name, resource, field_translation)
-        callback(status='model-save')
+        callback(status=STATUS_SAVING_METADATA)
         registry.save_model(model_name, package, dpo.metadata,
                             model, datapackage_name, fullname)
         return model_name, dpo.metadata, model
