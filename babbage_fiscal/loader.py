@@ -88,7 +88,8 @@ class FDPLoader(object):
             'fields': [
                 {
                     'type': f['type'],
-                    'name': field_translation[f['name']]['name']
+                    'name': field_translation[f['name']]['name'],
+                    'format': f.get('format', 'default')
                 }
                 for f in schema['fields']
                 ],
