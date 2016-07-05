@@ -8,7 +8,7 @@ from babbage_fiscal.callbacks import *
 from .model_registry import ModelRegistry
 from .config import get_engine
 from .fdp_utils import fdp_to_model
-from .db_utils import database_name
+from .db_utils import database_name, table_name_for_package
 
 
 def _translator_iterator(it, field_order, callback):
@@ -68,7 +68,7 @@ class FDPLoader(object):
         dpo.metadata['author'] = '{0} <{1}>'.format(fullname, email_addr)
 
         model_name = "{0}:{1}".format(datapackage_owner, datapackage_name)
-        table_name = registry.table_name_for_package(datapackage_owner, datapackage_name)
+        table_name = table_name_for_package(datapackage_owner, datapackage_name)
 
         all_fields = set()
         field_translation = {}

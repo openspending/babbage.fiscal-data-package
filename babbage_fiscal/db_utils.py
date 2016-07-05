@@ -11,6 +11,10 @@ def model_name(owner, name):
     return TABLE_NAME_PREFIX + owner + '__' + name
 
 
+def table_name_for_package(datapackage_owner, datapackage_name):
+    return model_name(datapackage_owner, datapackage_name)
+
+
 def database_name(name, names=[], default='column'):
     """ Generate a normalized version of the column name. """
     column = slugify(name or '', separator='_', max_length=30)

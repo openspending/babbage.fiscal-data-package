@@ -39,10 +39,10 @@ class CLITest(TestCase):
         """
         Simple invocation of the load-fdp command
         """
-        self.runner.invoke(cli,
+        ret = self.runner.invoke(cli,
                            args=['load-fdp', '--package', SAMPLE_PACKAGE],
                            env={'OS_ELASTICSEARCH_ADDRESS': LOCAL_ELASTICSEARCH})
-        self.cm = model_registry.ModelRegistry(self.es)
+        self.cm = model_registry.ModelRegistry()
         self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')
 
     def test_create_tables_cmd_success(self):
