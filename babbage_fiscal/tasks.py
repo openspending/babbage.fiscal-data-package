@@ -35,7 +35,8 @@ def load_fdp_task(package, callback, connection_string=None):
     try:
         print("Starting to load %s" % package)
         send_progress(status=STATUS_INITIALIZING)
-        model_name, package_contents, model = FDPLoader.load_fdp_to_db(package, get_engine(), send_progress)
+        model_name, package_contents, model = \
+            FDPLoader.load_fdp_to_db(package, get_engine(), send_progress)
         response = {
             'model_name': model_name,
             'babbage_model': model,

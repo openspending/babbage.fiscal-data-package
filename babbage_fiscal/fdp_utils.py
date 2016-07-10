@@ -16,10 +16,10 @@ def fdp_to_model(package, table_name, resource, field_translator):
         'dimensions': {}
     }
 
-    mapping = package.metadata['model']
-    schema = resource.metadata['schema']['fields']
+    mapping = package.descriptor['model']
+    schema = resource.descriptor['schema']['fields']
     field_titles = dict((f.get('name'), f.get('title', f.get('name'))) for f in schema)
-    resource_name = resource.metadata['name']
+    resource_name = resource.descriptor['name']
 
     # Converting measures
     all_concepts = set()

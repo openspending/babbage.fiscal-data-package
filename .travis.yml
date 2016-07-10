@@ -21,10 +21,10 @@ install:
     - python -m pip install -e .
     - python -m pip install psycopg2 pytest pytest-cov flask-testing coverage future futures
     - python -m pip install python-dateutil coveralls unicodecsv
-    - python -m pip install git+git://github.com/frictionlessdata/jsontableschema-py.git
-    - python -m pip install git+git://github.com/frictionlessdata/jsontableschema-sql-py.git
-    - python -m pip install git+git://github.com/okfn/tabulator-py.git
-    - python -m pip install git+git://github.com/okfn/datapackage-py.git
+    - python -m pip install -U git+git://github.com/frictionlessdata/jsontableschema-py.git
+    - python -m pip install -U git+git://github.com/frictionlessdata/jsontableschema-sql-py.git
+    - python -m pip install -U git+git://github.com/frictionlessdata/datapackage-py.git
+    - python -m pip install -U git+git://github.com/frictionlessdata/tabulator-py.git
 before_script:
     - psql -c 'create database os;' -U postgres
     - python -m pytest --version

@@ -37,10 +37,12 @@ class FDPLoader(object):
             self.engine = engine
 
     @staticmethod
-    def load_fdp_to_db(package, engine = None, callback=None):
+    def load_fdp_to_db(package, engine=None, callback=None):
         """
         Load an FDP to the database, create a babbage model and save it as well
         :param package: URL for the datapackage.json
+        :param engine: DB engine
+        :param callback: callback to use to send progress updates
         """
 
         # Load and validate the datapackage
@@ -54,18 +56,18 @@ class FDPLoader(object):
         dpo.validate()
         callback(status=STATUS_LOADING_RESOURCE)
         resource = dpo.resources[0]
-        schema = resource.metadata['schema']
+        schema = resource.descriptor['schema']
 
         # Use the cube manager to get the table name
         registry = ModelRegistry()
-        datapackage_name = dpo.metadata['name']
-        datapackage_owner = dpo.metadata['owner']
-        datapackage_author = dpo.metadata['author']
+        datapackage_name = dpo.descriptor['name']
+        datapackage_owner = dpo.descriptor['owner']
+        datapackage_author = dpo.descriptor['author']
 
         # Get the full name from the author field, and rewrite it without the email
         fullname, email_addr = email.utils.parseaddr(datapackage_author)
         email_addr = email_addr.split('@')[0] + '@not.shown'
-        dpo.metadata['author'] = '{0} <{1}>'.format(fullname, email_addr)
+        dpo.descriptor['author'] = '{0} <{1}>'.format(fullname, email_addr)
 
         model_name = "{0}:{1}".format(datapackage_owner, datapackage_name)
         table_name = table_name_for_package(datapackage_owner, datapackage_name)
@@ -117,6 +119,6 @@ class FDPLoader(object):
         callback(status=STATUS_CREATING_BABBAGE_MODEL)
         model = fdp_to_model(dpo, table_name, resource, field_translation)
         callback(status=STATUS_SAVING_METADATA)
-        registry.save_model(model_name, package, dpo.metadata,
+        registry.save_model(model_name, package, dpo.descriptor,
                             model, datapackage_name, fullname)
-        return model_name, dpo.metadata, model
+        return model_name, dpo.descriptor, model
