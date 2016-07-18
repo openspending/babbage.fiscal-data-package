@@ -11,13 +11,19 @@ from .fdp_utils import fdp_to_model
 from .db_utils import database_name, table_name_for_package
 
 
-def _translator_iterator(it, field_order, callback):
+def factorize(factors, rec, key):
+    if key in factors:
+        return rec[key]*factors[key]
+    return rec[key]
+
+
+def _translator_iterator(it, field_order, factors, callback):
     count = 0
     for rec in it:
         count += 1
         if count % 1000 == 1 and callback is not None:
             callback(count=count)
-        rec = (count,) + tuple(rec[k] for k in field_order)
+        rec = (count,) + tuple(factorize(factors, rec, k) for k in field_order)
         yield rec
 
 
@@ -68,6 +74,15 @@ class FDPLoader(object):
         fullname, email_addr = email.utils.parseaddr(datapackage_author)
         email_addr = email_addr.split('@')[0] + '@not.shown'
         dpo.descriptor['author'] = '{0} <{1}>'.format(fullname, email_addr)
+        dpo.descriptor.setdefault('private', True)
+
+        # Measure factors
+        measures = dpo.descriptor.get('model',{}).get('measures',{})
+        factors = {}
+        for _, measure in measures.items():
+            factor = measure.get('factor',1)
+            if factor != 1:
+                factors[measure.get('source')] = factor
 
         model_name = "{0}:{1}".format(datapackage_owner, datapackage_name)
         table_name = table_name_for_package(datapackage_owner, datapackage_name)
@@ -113,7 +128,7 @@ class FDPLoader(object):
         callback(status=STATUS_CREATING_TABLE)
         storage.create(table_name, storage_schema)
         callback(status=STATUS_LOADING_DATA_READY)
-        storage.write(table_name, _translator_iterator(resource.iter(), field_order, callback))
+        storage.write(table_name, _translator_iterator(resource.iter(), field_order, factors, callback))
 
         # Create Babbage Model
         callback(status=STATUS_CREATING_BABBAGE_MODEL)
