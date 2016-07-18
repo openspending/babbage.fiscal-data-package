@@ -177,7 +177,8 @@
         "source": "approved",
         "currency": "MDL",
         "direction": "expenditure",
-        "phase": "approved"
+        "phase": "approved",
+        "factor": 1000
       },
       "adjusted": {
         "source": "adjusted",
@@ -189,7 +190,8 @@
         "source": "executed",
         "currency": "MDL",
         "direction": "expenditure",
-        "phase": "executed"
+        "phase": "executed",
+        "factor": 100
       }
     },
     "dimensions": {

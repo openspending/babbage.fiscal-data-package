@@ -3,9 +3,11 @@ import os
 
 from unittest import TestCase
 
+import sqlite3
 from elasticsearch import Elasticsearch, NotFoundError
 
 from babbage_fiscal import config, loader, model_registry, tasks
+from babbage_fiscal.db_utils import table_name_for_package
 from .test_common import SAMPLE_PACKAGES, LOCAL_ELASTICSEARCH
 
 
@@ -38,6 +40,17 @@ class LoaderTest(TestCase):
             self.loader.load_fdp_to_db(SAMPLE_PACKAGE)
             self.cm = model_registry.ModelRegistry()
         self.assertGreater(len(list(self.cm.list_models())), 1, 'no dataset was loaded')
+
+        # Test factor
+        conn = sqlite3.connect(self.dbfilename)
+        c = conn.cursor()
+        tablename = table_name_for_package('example@example.com', 'boost-moldova')
+        c.execute("SELECT * FROM %s LIMIT 1" % tablename)
+        row = c.fetchone()
+        assert(row[-3] == 49756100000.0)
+        assert(row[-2] == 51906100,)
+        assert(row[-1] == 5171022338)
+        conn.close()
 
     def test_correct_file_double_load_success(self):
         """

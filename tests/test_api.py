@@ -41,6 +41,7 @@ class MyHTTPServer(Thread):
     def stop(self):
         self.server.shutdown()
 
+
 class TestAPI(FlaskTestCase):
 
     def create_app(self):
