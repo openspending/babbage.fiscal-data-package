@@ -120,19 +120,37 @@ class FDPLoader(object):
             'type': 'integer'
         })
 
+        # Create Babbage Model
+        callback(status=STATUS_CREATING_BABBAGE_MODEL)
+        model = fdp_to_model(dpo, table_name, resource, field_translation)
+
+        # Create indexes
+        indexes = []
+        primary_keys = resource.descriptor['schema'].get('primaryKey',[])
+        for dim in model['dimensions'].values():
+            if dim['label'] in primary_keys:
+                key_field = dim['attributes'][dim['key_attribute']]['label']
+                key_field = field_translation[key_field]['name']
+                indexes.append((key_field,))
+
+                label_field = dim['attributes'].get(dim.get('label_attribute'), {}).get('label')
+                if label_field is not None:
+                    label_field = field_translation[label_field]['name']
+                    if label_field != key_field:
+                        indexes.append((key_field, label_field))
+
+
         # Load 1st resource data into DB
         storage = Storage(engine)
         if storage.check(table_name):
             callback(status=STATUS_DELETING_TABLE)
             storage.delete(table_name)
         callback(status=STATUS_CREATING_TABLE)
-        storage.create(table_name, storage_schema)
+        storage.create(table_name, storage_schema, indexes)
+
         callback(status=STATUS_LOADING_DATA_READY)
         storage.write(table_name, _translator_iterator(resource.iter(), field_order, factors, callback))
 
-        # Create Babbage Model
-        callback(status=STATUS_CREATING_BABBAGE_MODEL)
-        model = fdp_to_model(dpo, table_name, resource, field_translation)
         callback(status=STATUS_SAVING_METADATA)
         registry.save_model(model_name, package, dpo.descriptor,
                             model, datapackage_name, fullname)
