@@ -48,7 +48,7 @@ class LoaderTest(TestCase):
         c.execute("SELECT * FROM %s LIMIT 1" % tablename)
         row = c.fetchone()
         assert(row[-3] == 49756100000.0)
-        assert(row[-2] == 51906100,)
+        assert(row[-2] == 51906100)
         assert(row[-1] == 5171022338)
         conn.close()
 
@@ -77,6 +77,6 @@ class LoaderTest(TestCase):
         """
         MODEL_NAME, SAMPLE_PACKAGE = SAMPLE_PACKAGES['uk']
         result = tasks.load_fdp_task.apply_async(args=(SAMPLE_PACKAGE, "http://google.com", self.connection_string))
-        result_output = result.wait(timeout=10, interval=0.5)
+        result_output = result.wait(timeout=30, interval=0.5)
         self.cm = model_registry.ModelRegistry()
         self.assertGreater(len(list(self.cm.list_models())), 0, 'no dataset was loaded')
