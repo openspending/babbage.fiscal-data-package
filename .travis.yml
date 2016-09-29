@@ -21,14 +21,15 @@ install:
     - python -m pip install -e .
     - python -m pip install psycopg2 pytest pytest-cov flask-testing coverage future futures
     - python -m pip install python-dateutil coveralls unicodecsv
-    - python -m pip install jsontableschema-sql jsontableschema datapackage tabulator
+    - python -m pip install jsontableschema datapackage tabulator
+    - python -m pip install -U git+git://github.com/akariv/jsontableschema-sql-py.git@feature/auto-index
     - python -m pip install -U git+git://github.com/frictionlessdata/datapackage-py.git
 before_script:
     - psql -c 'create database os;' -U postgres
     - python -m pytest --version
     - sleep 30
 script:
-    - python -m celery -A babbage_fiscal.tasks worker &
+    - python -m celery -l INFO -A babbage_fiscal.tasks worker &
     - python -m coverage run --source babbage_fiscal -m pytest tests/
     - CELERY_ALWAYS_EAGER=true python -m coverage run --source babbage_fiscal -m pytest tests/
 after_success:

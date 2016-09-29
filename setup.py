@@ -37,7 +37,7 @@ setup(
         'jsontableschema',
         'celery',
         'elasticsearch>=1.0.0,<2.0.0',
-        'os-package-registry>=0.0.1'
+        'os-package-registry>=0.0.3'
     ],
     tests_require=[
         'nose',
