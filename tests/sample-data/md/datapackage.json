@@ -32,12 +32,14 @@
           {
             "name": "admin1",
             "type": "string",
-            "description": ""
+            "description": "",
+            "osType": "administrative-classification:generic:level1:code:full"
           },
           {
             "name": "admin2!",
             "type": "string",
-            "description": ""
+            "description": "",
+            "osType": "administrative-classification:generic:level2:code:part"
           },
           {
             "name": "admin2*",
@@ -47,7 +49,8 @@
           {
             "name": "admin3 (code)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "osType": "administrative-classification:generic:level3:code:full"
           },
           {
             "name": "admin3 (label)",
@@ -58,6 +61,7 @@
             "name": "admin4 (code)",
             "type": "string",
             "description": "",
+            "osType": "administrative-classification:generic:level4:code:part",
             "constraints": {
               "required":false
             }
@@ -99,7 +103,8 @@
           {
             "name": "func1 (code)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "osType": "functional-classification:generic:level1:code:full"
           },
           {
             "name": "func1 (label)",
@@ -109,7 +114,8 @@
           {
             "name": "func2 (code)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "osType": "functional-classification:generic:level2:code:part"
           },
           {
             "name": "func2 (label)",
@@ -119,7 +125,8 @@
           {
             "name": "econ1 (code)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "osType": "economic-classification:generic:level1:code:full"
           },
           {
             "name": "econ1 (label)",
@@ -129,7 +136,8 @@
           {
             "name": "econ2 (code)",
             "type": "string",
-            "description": ""
+            "description": "",
+            "osType": "economic-classification:generic:level2:code:full"
           },
           {
             "name": "econ2 (label)",
