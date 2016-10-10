@@ -41,15 +41,35 @@ class LoaderTest(TestCase):
             self.cm = model_registry.ModelRegistry()
         self.assertGreater(len(list(self.cm.list_models())), 1, 'no dataset was loaded')
 
-        # Test factor
         conn = sqlite3.connect(self.dbfilename)
         c = conn.cursor()
         tablename = table_name_for_package('example@example.com', 'boost-moldova')
         c.execute("SELECT * FROM %s LIMIT 1" % tablename)
         row = c.fetchone()
+
+        # Test factor
         assert(row[-3] == 49756100000.0)
         assert(row[-2] == 51906100)
         assert(row[-1] == 5171022338)
+
+        # Test id
+        # Admin classification 1, 1+2, 3, 3+4
+        c = ["Central", "101", "0101", "", "", "010"]
+        assert(row[2] == c[0])
+        assert(row[3] == ' - '.join([c[0], c[1]]))
+        assert(row[5] == c[2])
+        assert(row[7] == ' - '.join([c[2], c[3]]))
+        assert(row[9] == c[4])
+        assert(row[11] == c[5])
+        # Func classification 1, 1+2
+        c = ["01", "01.01"]
+        assert(row[13] == c[0])
+        assert(row[15] == ' - '.join([c[0], c[1]]))
+        # Econ classification 1, 2
+        c = ["111", "111.00"]
+        assert(row[17] == c[0])
+        assert(row[19] == c[1])
+
         conn.close()
 
     def test_correct_file_double_load_success(self):

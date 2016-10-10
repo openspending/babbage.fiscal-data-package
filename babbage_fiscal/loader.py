@@ -1,4 +1,5 @@
 import email.utils
+import logging
 import traceback
 
 from datapackage import DataPackage
@@ -9,22 +10,7 @@ from .model_registry import ModelRegistry
 from .config import get_engine
 from .fdp_utils import fdp_to_model
 from .db_utils import database_name, table_name_for_package
-
-
-def factorize(factors, rec, key):
-    if key in factors:
-        return rec[key]*factors[key]
-    return rec[key]
-
-
-def _translator_iterator(it, field_order, factors, callback):
-    count = 0
-    for rec in it:
-        count += 1
-        if count % 1000 == 1 and callback is not None:
-            callback(count=count)
-        rec = (count,) + tuple(factorize(factors, rec, k) for k in field_order)
-        yield rec
+from .row_processor import RowProcessor
 
 
 def noop(*args, **kw):
@@ -112,21 +98,12 @@ class FDPLoader(object):
         dpo.descriptor['author'] = '{0} <{1}>'.format(fullname, email_addr)
         dpo.descriptor.setdefault('private', True)
 
-        # Measure factors
-        measures = dpo.descriptor.get('model',{}).get('measures',{})
-        factors = {}
-        for _, measure in measures.items():
-            factor = measure.get('factor',1)
-            if factor != 1:
-                factors[measure.get('source')] = factor
-
         model_name = "{0}:{1}".format(datapackage_owner, datapackage_name)
         table_name = table_name_for_package(datapackage_owner, datapackage_name)
 
         try:
             all_fields = set()
             field_translation = {}
-            field_order = []
             # Process schema - slugify field names
             for field in schema['fields']:
                 name = database_name(field['name'], all_fields)
@@ -136,7 +113,6 @@ class FDPLoader(object):
                     'type': field['type']
                 }
                 field_translation[field['name']] = translated_field
-                field_order.append(field['name'])
 
             storage_schema = {
                 'fields': [
@@ -186,7 +162,9 @@ class FDPLoader(object):
             storage.create(table_name, storage_schema, indexes)
 
             status_update(status=STATUS_LOADING_DATA_READY)
-            storage.write(table_name, _translator_iterator(resource.iter(), field_order, factors, status_update))
+            row_processor = RowProcessor(resource.iter(), status_update,
+                                         schema, dpo.descriptor)
+            storage.write(table_name, row_processor.iter())
 
             response = {
                 'model_name': model_name,
@@ -196,4 +174,8 @@ class FDPLoader(object):
             status_update(status=STATUS_DONE, data=response)
 
         except Exception as e:
+            logging.exception('LOADING FAILED')
             status_update(status=STATUS_FAIL, error=traceback.format_exc())
+            return False
+
+        return True
