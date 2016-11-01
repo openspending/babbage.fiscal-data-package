@@ -6,8 +6,8 @@ TABLE_NAME_PREFIX = "fdp__"
 
 def model_name(owner, name):
     """ Generate a normalized version of a model name. """
-    name = slugify(name or '', separator='_', max_length=28).strip('_')
-    owner = slugify(owner or '', separator='_', max_length=28).strip('_')
+    name = slugify(name or '', separator='_', max_length=16).strip('_')
+    owner = slugify(owner or '', separator='_', max_length=34).strip('_')
     return TABLE_NAME_PREFIX + owner + '__' + name
 
 

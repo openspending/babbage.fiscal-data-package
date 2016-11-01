@@ -38,10 +38,13 @@ def load_fdp_task(package, callback, connection_string=None):
     try:
         logging.info("Starting to load %s" % package)
         send_progress(status=STATUS_INITIALIZING)
-        assert FDPLoader.load_fdp_to_db(package, get_engine(), send_progress)
+        success = FDPLoader.load_fdp_to_db(package, get_engine(), send_progress)
         logging.info("Finished to load %s" % package)
-    except Exception as e:
+
+    except:
         exc = traceback.format_exc()
         send_progress(status=STATUS_FAIL, error=str(exc))
+        success = False
         print("Failed to load %s: %s" % (package, exc))
 
+    assert success

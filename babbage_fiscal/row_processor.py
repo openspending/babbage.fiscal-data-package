@@ -1,5 +1,7 @@
 import logging
 
+import time
+
 
 class RowProcessor(object):
 
@@ -79,10 +81,14 @@ class RowProcessor(object):
 
     def iter(self):
         count = 0
+        sent = 0
         for rec in self.row_iterator:
             count += 1
-            if count % 1000 == 1 and self.callback is not None:
-                self.callback(count=count)
+            if self.callback is not None:
+                t = time.time()
+                if t - sent > 1:
+                    sent = t
+                    self.callback(count=count)
             rec = \
                 (count,) + \
                 tuple(self.process_value(rec, k, rec[k])
