@@ -13,10 +13,10 @@ app = Celery('fdp_loader')
 app.config_from_object('babbage_fiscal.celeryconfig')
 
 root = logging.getLogger()
-root.setLevel(logging.DEBUG)
+root.setLevel(logging.INFO)
 
 ch = logging.StreamHandler(sys.stderr)
-ch.setLevel(logging.DEBUG)
+ch.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 root.addHandler(ch)
@@ -28,13 +28,18 @@ class ProgressSender(object):
         self.count = 0
         self.callback = callback
         self.package = package
+        self.error = None
 
     def __call__(self, status=STATUS_LOADING_DATA, count=None, data=None, error=None):
+        if error is not None:
+            self.error = error
         if count is None:
             count = self.count
         else:
             self.count = count
-        logging.debug('CALLBACK: %s %s (%s / %s)', self.package, status, count, error)
+        logging.info('CALLBACK: %s %s (%s / %s)',
+                     '/'.join(self.package.split('/')[4:]),
+                     status, count, error)
         do_request(self.callback, self.package, status,
                    progress=count, error=error, data=data)
 
@@ -56,4 +61,5 @@ def load_fdp_task(package, callback, connection_string=None):
         success = False
         print("Failed to load %s: %s" % (package, exc))
 
-    assert success
+    if not success:
+        raise RuntimeError(send_progress.error)
