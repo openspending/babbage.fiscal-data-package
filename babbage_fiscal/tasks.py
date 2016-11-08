@@ -1,6 +1,7 @@
 import logging
 import traceback
 
+import sys
 from celery import Celery
 
 from .callbacks import STATUS_LOADING_DATA
@@ -11,7 +12,14 @@ from .callbacks import do_request, STATUS_INITIALIZING, STATUS_FAIL
 app = Celery('fdp_loader')
 app.config_from_object('babbage_fiscal.celeryconfig')
 
-logging.root.setLevel(logging.DEBUG)
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler(sys.stderr)
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+root.addHandler(ch)
 
 
 class ProgressSender(object):
@@ -26,6 +34,7 @@ class ProgressSender(object):
             count = self.count
         else:
             self.count = count
+        logging.debug('CALLBACK: %s %s (%s / %s)', self.package, status, count, error)
         do_request(self.callback, self.package, status,
                    progress=count, error=error, data=data)
 
