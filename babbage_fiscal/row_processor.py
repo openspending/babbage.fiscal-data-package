@@ -52,7 +52,7 @@ class RowProcessor(object):
                 key_field_name = key_field['name']
                 os_type = key_field.get('osType')
                 if os_type is not None:
-                    if os_type.endswith(':code:full'):
+                    if os_type.endswith(':code:full') or os_type.endswith(':code'):
                         partials[key_field_name] = [key_field_name]
                     elif os_type.endswith(':code:part'):
                         parent_attr_name = key_attr['parent']
@@ -87,8 +87,8 @@ class RowProcessor(object):
             if self.callback is not None:
                 t = time.time()
                 if t - sent > 1:
-                    sent = t
                     self.callback(count=count)
+                    sent = t
             rec = \
                 (count,) + \
                 tuple(self.process_value(rec, k, rec[k])
