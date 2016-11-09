@@ -1,4 +1,6 @@
 import json
+import logging
+
 import requests
 
 STATUS_QUEUED = 'queued'
@@ -24,5 +26,6 @@ def do_request(callback, package, status, progress=None, error=None, data=None):
         params['error'] = error
     if data is not None:
         params['data'] = json.dumps(data, indent=0)
-    requests.get(callback, params).content
+    ret = requests.post(callback, params).content
+    logging.info('Got from conductor: %s', ret)
 
