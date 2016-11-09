@@ -1,14 +1,17 @@
 # coding: utf-8
 from slugify import slugify
+from hashlib import md5
 
 TABLE_NAME_PREFIX = "fdp__"
 
 
 def model_name(owner, name):
     """ Generate a normalized version of a model name. """
-    name = slugify(name or '', separator='_', max_length=16).strip('_')
-    owner = slugify(owner or '', separator='_', max_length=34).strip('_')
-    return TABLE_NAME_PREFIX + owner + '__' + name
+    name = slugify(name or '', separator='_', max_length=24).strip('_')
+    owner = slugify(owner or '', separator='_', max_length=16).strip('_')
+    combo = owner + '__' + name
+    hash = md5(combo.encode('ascii')).hexdigest()[:8]+'__'
+    return TABLE_NAME_PREFIX + combo + '__' + hash
 
 
 def table_name_for_package(datapackage_owner, datapackage_name):
