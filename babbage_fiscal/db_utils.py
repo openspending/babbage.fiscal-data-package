@@ -7,11 +7,14 @@ TABLE_NAME_PREFIX = "fdp__"
 
 def model_name(owner, name):
     """ Generate a normalized version of a model name. """
-    name = slugify(name or '', separator='_', max_length=24).strip('_')
-    owner = slugify(owner or '', separator='_', max_length=16).strip('_')
-    combo = owner + '__' + name
-    hash = md5(combo.encode('ascii')).hexdigest()[:8]+'__'
-    return TABLE_NAME_PREFIX + combo + '__' + hash
+    name = slugify(name or '', separator='_').strip('_')
+    owner = slugify(owner or '', separator='_').strip('_')
+    key = owner + '/' + name
+    digest = md5(key.encode('ascii')).hexdigest()[:8]
+    return TABLE_NAME_PREFIX + \
+        '__'.join([owner[:16].strip('_'),
+                   name[:22].strip('_'),
+                   digest])
 
 
 def table_name_for_package(datapackage_owner, datapackage_name):
