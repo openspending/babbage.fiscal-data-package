@@ -154,17 +154,19 @@ class FDPLoader(object):
 
 
             # Load 1st resource data into DB
-            storage = Storage(engine)
-            if storage.check(table_name):
+            # We use the prefix name so that JTS-SQL doesn't load all table data into memory
+            storage = Storage(engine, prefix=table_name)
+            faux_table_name = ''
+            if storage.check(faux_table_name):
                 status_update(status=STATUS_DELETING_TABLE)
-                storage.delete(table_name)
+                storage.delete(faux_table_name)
             status_update(status=STATUS_CREATING_TABLE)
-            storage.create(table_name, storage_schema, indexes)
+            storage.create(faux_table_name, storage_schema, indexes)
 
             status_update(status=STATUS_LOADING_DATA_READY)
             row_processor = RowProcessor(resource.iter(), status_update,
                                          schema, dpo.descriptor)
-            storage.write(table_name, row_processor.iter())
+            storage.write(faux_table_name, row_processor.iter())
 
             response = {
                 'model_name': model_name,
