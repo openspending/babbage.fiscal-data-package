@@ -1,6 +1,9 @@
 import email.utils
-import logging
 import traceback
+import hashlib
+import logging
+import json
+import requests
 
 from datapackage import DataPackage
 from jsontableschema_sql import Storage
@@ -27,79 +30,128 @@ class FDPLoader(object):
             self.engine = get_engine()
         else:
             self.engine = engine
+        self.model = None
+        self.model_name = None
+        self.dpo = None
+        self.datapackage_name = None
+        self.fullname = None
+        self.registry = ModelRegistry()
+        self.last_package_descriptor = None
+        self.last_loading_success = None
+        self.callback = noop
 
-    @staticmethod
-    def load_fdp_to_db(package, engine=None, callback=noop):
+    def check_hashes(self, resource):
+        logging.info('Checking hashes of currently loaded data')
+
+        current_schema_hash = self.last_package_descriptor\
+                                .get('resources', ({},))[0]\
+                                .get('_schema_hash')
+        logging.info('Loaded resource descriptor hash is %s', current_schema_hash)
+
+        new_schema_hash = dict((k, v)
+                               for k, v in resource.descriptor.items()
+                               if not k.startswith('_'))
+        new_schema_hash['_model'] = self.dpo.descriptor.get('model', {})
+        new_schema_hash = json.dumps(new_schema_hash, sort_keys=True, ensure_ascii=True)
+        new_schema_hash = new_schema_hash.encode('ascii')
+        new_schema_hash = hashlib.md5(new_schema_hash).hexdigest()
+        logging.info('Loading resource descriptor hash is %s', new_schema_hash)
+
+        current_data_hash = self.last_package_descriptor \
+            .get('resources', ({},))[0] \
+            .get('_data_hash')
+        logging.info('Loaded resource data hash is %s', current_data_hash)
+
+        remote_url = resource.remote_data_path
+        response = requests.head(remote_url)
+        new_data_hash = response.headers.get('etag')
+        logging.info('Loading resource data hash is %s', new_data_hash)
+
+        resource.descriptor['_schema_hash'] = new_schema_hash
+        resource.descriptor['_data_hash'] = new_data_hash
+
+        ret = (current_schema_hash != new_schema_hash) or\
+              (current_data_hash != new_data_hash) or\
+              (not self.last_loading_success)
+
+        if ret:
+            logging.info('Looks like stuff changed, loading data')
+        else:
+            logging.info('Looks like nothing major changed, skipping data load')
+
+        return ret
+
+    def status_update(self, **kwargs):
+        if self.model_name is not None:
+            try:
+                _name, _origin_url, _package, _model, _dataset, \
+                _author, _loading_status, _loaded = \
+                    self.registry.get_raw(self.model_name)
+                if self.last_package_descriptor is None:
+                    self.last_package_descriptor = _package
+                if self.last_loading_success is None:
+                    self.last_loading_success = _loading_status == STATUS_DONE
+            except KeyError:
+                _name = self.model_name
+                _origin_url = self.package
+                _package = {}
+                _model = {}
+                _dataset = ''
+                _author = ''
+                _loading_status = None
+                _loaded = False
+                self.last_package_descriptor = {}
+                self.last_loading_success = False
+
+            if self.model is not None:
+                _model = self.model
+            if self.dpo is not None:
+                _package = self.dpo.descriptor
+            if self.datapackage_name is not None:
+                _dataset = self.datapackage_name
+            if self.fullname is not None:
+                _author = self.fullname
+            status = kwargs.get('status')
+            if status is not None:
+                _loading_status = status
+                _loaded = status == STATUS_DONE
+            self.registry.save_model(_name, _origin_url, _package,
+                                     _model, _dataset, _author,
+                                     _loading_status, _loaded)
+        self.callback(**kwargs)
+
+    def load_fdp_to_db(self, package, callback=noop):
         """
         Load an FDP to the database, create a babbage model and save it as well
         :param package: URL for the datapackage.json
         :param engine: DB engine
         :param callback: callback to use to send progress updates
         """
-        model = None
-        model_name = None
-        dpo = None
-        datapackage_name = None
-        fullname = None
-        registry = ModelRegistry()
 
-        def status_update(**kwargs):
-            if model_name is not None:
-                try:
-                    _name, _origin_url, _package, _model, _dataset, \
-                        _author, _loading_status, _loaded = \
-                            registry.get_raw(model_name)
-                except KeyError:
-                    _name = model_name
-                    _origin_url = ''
-                    _package = {}
-                    _model = {}
-                    _dataset = ''
-                    _author = ''
-                    _loading_status = None
-                    _loaded = False
-
-                if model is not None:
-                    _model = model
-                if dpo is not None:
-                    _package = dpo.descriptor
-                if datapackage_name is not None:
-                    _dataset = datapackage_name
-                if fullname is not None:
-                    _author = fullname
-                status = kwargs.get('status')
-                if status is not None:
-                    _loading_status = status
-                    _loaded = status == STATUS_DONE
-                registry.save_model(_name, _origin_url, _package,
-                                    _model, _dataset, _author,
-                                    _loading_status, _loaded)
-            callback(**kwargs)
+        self.callback = callback
 
         # Load and validate the datapackage
-        if engine is None:
-            engine = get_engine()
-        status_update(status=STATUS_LOADING_DATAPACKAGE)
-        dpo = DataPackage(package, schema='fiscal')
-        status_update(status=STATUS_VALIDATING_DATAPACKAGE)
-        dpo.validate()
-        status_update(status=STATUS_LOADING_RESOURCE)
-        resource = dpo.resources[0]
+        self.status_update(status=STATUS_LOADING_DATAPACKAGE)
+        self.dpo = DataPackage(package, schema='fiscal')
+        self.status_update(status=STATUS_VALIDATING_DATAPACKAGE)
+        self.dpo.validate()
+        self.status_update(status=STATUS_LOADING_RESOURCE)
+        resource = self.dpo.resources[0]
         schema = resource.descriptor['schema']
 
         # Use the cube manager to get the table name
-        datapackage_name = dpo.descriptor['name']
-        datapackage_owner = dpo.descriptor['owner']
-        datapackage_author = dpo.descriptor['author']
+        self.datapackage_name = self.dpo.descriptor['name']
+        datapackage_owner = self.dpo.descriptor['owner']
+        datapackage_author = self.dpo.descriptor['author']
 
         # Get the full name from the author field, and rewrite it without the email
-        fullname, email_addr = email.utils.parseaddr(datapackage_author)
+        self.fullname, email_addr = email.utils.parseaddr(datapackage_author)
         email_addr = email_addr.split('@')[0] + '@not.shown'
-        dpo.descriptor['author'] = '{0} <{1}>'.format(fullname, email_addr)
-        dpo.descriptor.setdefault('private', True)
+        self.dpo.descriptor['author'] = '{0} <{1}>'.format(self.fullname, email_addr)
+        self.dpo.descriptor.setdefault('private', True)
 
-        model_name = "{0}:{1}".format(datapackage_owner, datapackage_name)
-        table_name = table_name_for_package(datapackage_owner, datapackage_name)
+        self.model_name = "{0}:{1}".format(datapackage_owner, self.datapackage_name)
+        table_name = table_name_for_package(datapackage_owner, self.datapackage_name)
 
         try:
             all_fields = set()
@@ -134,50 +186,50 @@ class FDPLoader(object):
             })
 
             # Create Babbage Model
-            status_update(status=STATUS_CREATING_BABBAGE_MODEL)
-            model = fdp_to_model(dpo, table_name, resource, field_translation)
+            self.status_update(status=STATUS_CREATING_BABBAGE_MODEL)
+            self.model = fdp_to_model(self.dpo, table_name, resource, field_translation)
 
-            # Create indexes
-            indexes = []
-            primary_keys = resource.descriptor['schema'].get('primaryKey',[])
-            for dim in model['dimensions'].values():
-                if dim['label'] in primary_keys:
-                    key_field = dim['attributes'][dim['key_attribute']]['label']
-                    key_field = field_translation[key_field]['name']
-                    indexes.append((key_field,))
+            if self.check_hashes(resource):
+                # Create indexes
+                indexes = []
+                primary_keys = resource.descriptor['schema'].get('primaryKey',[])
+                for dim in self.model['dimensions'].values():
+                    if dim['label'] in primary_keys:
+                        key_field = dim['attributes'][dim['key_attribute']]['label']
+                        key_field = field_translation[key_field]['name']
+                        indexes.append((key_field,))
 
-                    label_field = dim['attributes'].get(dim.get('label_attribute'), {}).get('label')
-                    if label_field is not None:
-                        label_field = field_translation[label_field]['name']
-                        if label_field != key_field:
-                            indexes.append((key_field, label_field))
+                        label_field = dim['attributes'].get(dim.get('label_attribute'), {}).get('label')
+                        if label_field is not None:
+                            label_field = field_translation[label_field]['name']
+                            if label_field != key_field:
+                                indexes.append((key_field, label_field))
 
+                # Load 1st resource data into DB
+                # We use the prefix name so that JTS-SQL doesn't load all table data into memory
+                storage = Storage(self.engine, prefix=table_name)
+                faux_table_name = ''
+                if storage.check(faux_table_name):
+                    self.status_update(status=STATUS_DELETING_TABLE)
+                    storage.delete(faux_table_name)
+                self.status_update(status=STATUS_CREATING_TABLE)
+                storage.create(faux_table_name, storage_schema, indexes)
 
-            # Load 1st resource data into DB
-            # We use the prefix name so that JTS-SQL doesn't load all table data into memory
-            storage = Storage(engine, prefix=table_name)
-            faux_table_name = ''
-            if storage.check(faux_table_name):
-                status_update(status=STATUS_DELETING_TABLE)
-                storage.delete(faux_table_name)
-            status_update(status=STATUS_CREATING_TABLE)
-            storage.create(faux_table_name, storage_schema, indexes)
-
-            status_update(status=STATUS_LOADING_DATA_READY)
-            row_processor = RowProcessor(resource.iter(), status_update,
-                                         schema, dpo.descriptor)
-            storage.write(faux_table_name, row_processor.iter())
+                self.status_update(status=STATUS_LOADING_DATA_READY)
+                row_processor = RowProcessor(resource.iter(), self.status_update,
+                                             schema, self.dpo.descriptor)
+                storage.write(faux_table_name, row_processor.iter())
 
             response = {
-                'model_name': model_name,
-                'babbage_model': model,
-                'package': dpo.descriptor
+                'model_name': self.model_name,
+                'babbage_model': self.model,
+                'package': self.dpo.descriptor
             }
-            status_update(status=STATUS_DONE, data=response)
+            self.status_update(status=STATUS_DONE, data=response)
 
         except Exception as e:
             logging.exception('LOADING FAILED')
-            status_update(status=STATUS_FAIL, error=traceback.format_exc())
+            self.status_update(status=STATUS_FAIL, error=traceback.format_exc())
             return False
 
         return True

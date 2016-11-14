@@ -52,7 +52,7 @@ def load_fdp_task(package, callback, connection_string=None):
     try:
         logging.info("Starting to load %s" % package)
         send_progress(status=STATUS_INITIALIZING)
-        success = FDPLoader.load_fdp_to_db(package, get_engine(), send_progress)
+        success = FDPLoader(get_engine()).load_fdp_to_db(package, send_progress)
         logging.info("Finished to load %s" % package)
 
     except:
