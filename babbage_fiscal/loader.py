@@ -30,6 +30,7 @@ class FDPLoader(object):
             self.engine = get_engine()
         else:
             self.engine = engine
+        self.package = None
         self.model = None
         self.model_name = None
         self.dpo = None
@@ -84,7 +85,7 @@ class FDPLoader(object):
     def status_update(self, **kwargs):
         if self.model_name is not None:
             try:
-                _name, _origin_url, _package, _model, _dataset, \
+                _name, _, _package, _model, _dataset, \
                 _author, _loading_status, _loaded = \
                     self.registry.get_raw(self.model_name)
                 if self.last_package_descriptor is None:
@@ -93,7 +94,6 @@ class FDPLoader(object):
                     self.last_loading_success = _loading_status == STATUS_DONE
             except KeyError:
                 _name = self.model_name
-                _origin_url = self.package
                 _package = {}
                 _model = {}
                 _dataset = ''
@@ -115,7 +115,7 @@ class FDPLoader(object):
             if status is not None:
                 _loading_status = status
                 _loaded = status == STATUS_DONE
-            self.registry.save_model(_name, _origin_url, _package,
+            self.registry.save_model(_name, self.package, _package,
                                      _model, _dataset, _author,
                                      _loading_status, _loaded)
         self.callback(**kwargs)
@@ -129,6 +129,7 @@ class FDPLoader(object):
         """
 
         self.callback = callback
+        self.package = package
 
         # Load and validate the datapackage
         self.status_update(status=STATUS_LOADING_DATAPACKAGE)
