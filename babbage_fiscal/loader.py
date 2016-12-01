@@ -193,7 +193,7 @@ class FDPLoader(object):
             if self.check_hashes(resource):
                 # Create indexes
                 indexes = []
-                primary_keys = resource.descriptor['schema'].get('primaryKey',[])
+                primary_keys = resource.descriptor['schema'].get('primaryKey', [])
                 for dim in self.model['dimensions'].values():
                     if dim['label'] in primary_keys:
                         key_field = dim['attributes'][dim['key_attribute']]['label']
@@ -210,11 +210,11 @@ class FDPLoader(object):
                 # We use the prefix name so that JTS-SQL doesn't load all table data into memory
                 storage = Storage(self.engine, prefix=table_name)
                 faux_table_name = ''
-                if storage.check(faux_table_name):
+                if faux_table_name in storage.buckets:
                     self.status_update(status=STATUS_DELETING_TABLE)
                     storage.delete(faux_table_name)
                 self.status_update(status=STATUS_CREATING_TABLE)
-                storage.create(faux_table_name, storage_schema, indexes)
+                storage.create(faux_table_name, storage_schema, indexes_fields=indexes)
 
                 self.status_update(status=STATUS_LOADING_DATA_READY)
                 row_processor = RowProcessor(resource.iter(), self.status_update,
