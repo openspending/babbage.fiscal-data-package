@@ -7,6 +7,7 @@ import requests
 
 from datapackage import DataPackage
 from jsontableschema_sql import Storage
+from os_api_cache import get_os_cache
 
 from .callbacks import *
 from .model_registry import ModelRegistry
@@ -220,6 +221,10 @@ class FDPLoader(object):
                 row_processor = RowProcessor(resource.iter(), self.status_update,
                                              schema, self.dpo.descriptor)
                 storage.write(faux_table_name, row_processor.iter())
+
+                cache = get_os_cache()
+                if cache is not None:
+                    cache.clear(self.model_name)
 
             response = {
                 'model_name': self.model_name,
