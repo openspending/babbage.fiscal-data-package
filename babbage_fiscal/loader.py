@@ -215,7 +215,7 @@ class FDPLoader(object):
                     self.status_update(status=STATUS_DELETING_TABLE)
                     storage.delete(faux_table_name)
                 self.status_update(status=STATUS_CREATING_TABLE)
-                storage.create(faux_table_name, storage_schema, indexes_fields=indexes)
+                storage.create(faux_table_name, storage_schema, indexes_fields=[indexes])
 
                 self.status_update(status=STATUS_LOADING_DATA_READY)
                 row_processor = RowProcessor(resource.iter(), self.status_update,
@@ -224,6 +224,7 @@ class FDPLoader(object):
 
                 cache = get_os_cache()
                 if cache is not None:
+                    logging.info('Clearing cache for context=%s', self.model_name)
                     cache.clear(self.model_name)
 
             response = {
