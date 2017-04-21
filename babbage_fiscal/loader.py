@@ -193,19 +193,34 @@ class FDPLoader(object):
 
             if self.check_hashes(resource):
                 # Create indexes
-                indexes = []
-                primary_keys = resource.descriptor['schema'].get('primaryKey', [])
-                for dim in self.model['dimensions'].values():
-                    if dim['label'] in primary_keys:
-                        key_field = dim['attributes'][dim['key_attribute']]['label']
-                        key_field = field_translation[key_field]['name']
-                        indexes.append((key_field,))
-
-                        label_field = dim['attributes'].get(dim.get('label_attribute'), {}).get('label')
-                        if label_field is not None:
-                            label_field = field_translation[label_field]['name']
-                            if label_field != key_field:
-                                indexes.append((key_field, label_field))
+                indexes = set()
+                primary_keys = schema.get('primaryKey', [])
+                for dim in self.dpo.descriptor.get('model', {}).get('dimensions',{}).values():
+                    attributes = dim.get('attributes', {})
+                    for attribute in attributes.values():
+                        source = attribute.get('source')
+                        if source in primary_keys:
+                            indexes.add((field_translation[source]['name'],))
+                        labelfor = attribute.get('labelfor')
+                        if labelfor is not None:
+                            labelfor = attributes.get(labelfor, {})
+                            labelfor_source = labelfor.get('source')
+                            if labelfor_source in primary_keys:
+                                indexes.add((field_translation[labelfor_source]['name'],
+                                             field_translation[source]['name'],))
+                indexes = list(indexes)
+                logging.error('INDEXES: %r', indexes)
+                #
+                # if dim['label'] in primary_keys:
+                #     key_field = dim['attributes'][dim['key_attribute']]['label']
+                #     key_field = field_translation[key_field]['name']
+                #     indexes.append((key_field,))
+                #
+                #     label_field = dim['attributes'].get(dim.get('label_attribute'), {}).get('label')
+                #     if label_field is not None:
+                #         label_field = field_translation[label_field]['name']
+                #         if label_field != key_field:
+                #             indexes.append((key_field, label_field))
 
                 # Load 1st resource data into DB
                 # We use the prefix name so that JTS-SQL doesn't load all table data into memory
