@@ -12,10 +12,9 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4'
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5'
     ],
     keywords='schema jsontableschema jts fdp fiscal data babbage',
     author='OpenSpending',
@@ -35,16 +34,19 @@ setup(
         'click',
         'datapackage',
         'jsontableschema',
-        'celery',
+        'celery>=3.1.25,<4',  # Version >4 removes support for SQLAlchemy.
+                              # They re-added the support on https://github.com/celery/kombu/pull/687.
+                              # When that's released, we can use versions >4
         'elasticsearch>=1.0.0,<2.0.0',
-        'os-package-registry>=0.0.3'
+        'os-package-registry>=0.0.3',
+        'jsontableschema-sql',
+        'os-api-cache'
+    ],
+    dependency_links=[
+        'git+git://github.com/akariv/jsontableschema-sql-py.git@feature/auto-index#egg=jsontableschema-sql'
     ],
     tests_require=[
-        'nose',
-        'coverage',
-        'wheel',
-        'unicodecsv',
-        'jtskit'
+        'tox',
     ],
     entry_points={
       'console_scripts': [
