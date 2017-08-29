@@ -32,7 +32,7 @@ setup(
         'awesome-slugify',
         'sqlalchemy',
         'click',
-        'datapackage',
+        'datapackage<1.0',
         'jsontableschema',
         'celery>=3.1.25,<4',  # Version >4 removes support for SQLAlchemy.
                               # They re-added the support on https://github.com/celery/kombu/pull/687.
