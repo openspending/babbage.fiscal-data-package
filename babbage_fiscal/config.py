@@ -3,7 +3,7 @@ import os
 from sqlalchemy import create_engine
 
 _engine = None
-_connection_string = os.environ['FISCAL_PACKAGE_ENGINE']
+_connection_string = os.environ.get('FISCAL_PACKAGE_ENGINE')
 
 
 def _set_connection_string(connection_string):
