@@ -28,7 +28,7 @@ setup(
     zip_safe=False,
     test_suite='nose.collector',
     install_requires=[
-        'babbage >= 0.1.1',
+        'babbage >= 0.3.3',
         'awesome-slugify',
         'sqlalchemy',
         'click',
