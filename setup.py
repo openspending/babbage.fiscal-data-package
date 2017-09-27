@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-__version__ = '0.0.7'
+__version__ = '0.0.8'
 
 setup(
     name='babbage_fiscal',
@@ -34,12 +34,10 @@ setup(
         'click',
         'datapackage',
         'jsontableschema',
-        'celery>=3.1.25,<4',  # Version >4 removes support for SQLAlchemy.
-                              # They re-added the support on https://github.com/celery/kombu/pull/687.
-                              # When that's released, we can use versions >4
+        'celery>=4',
         'elasticsearch>=1.0.0,<2.0.0',
         'os-package-registry>=0.0.3',
-        'jsontableschema-sql',
+        'tableschema-sql',
         'os-api-cache'
     ],
     dependency_links=[
