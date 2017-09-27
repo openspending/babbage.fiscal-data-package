@@ -27,7 +27,7 @@ class TestLoader(object):
 
         # Test id
         # Admin classification 1, 1+2, 3, 3+4
-        c = ["Central", "101", "0101", "", "", "010"]
+        c = ["Central", "101", "0101", None, None, "010"]
         assert row[2] == c[0]
         assert row[3] == ' - '.join([c[0], c[1]])
         assert row[5] == c[2]

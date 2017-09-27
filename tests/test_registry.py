@@ -33,7 +33,7 @@ class TestRegistry(object):
         cm = model_registry.ModelRegistry()
         model = cm.get_model(MODEL_NAME)
         cube = Cube(config.get_engine(), model['fact_table'], model)
-        facts = cube.facts(page_size=5)
+        facts = cube.facts(fields=['year'], page_size=5)
         assert facts['total_fact_count'] == NUM_RECORDS, 'wrong number of records'
 
     def test_has_cube_correct_values(self):

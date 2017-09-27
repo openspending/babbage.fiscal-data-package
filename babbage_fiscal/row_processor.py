@@ -65,7 +65,11 @@ class RowProcessor(object):
             __partials = _partials[:]
 
             def ret(_, rec):
-                if len(rec[__partials[-1]].strip()) == 0:
+                val = rec[__partials[-1]]
+                if val is None or len(val) == 0:
+                    return ''
+                val = val.strip()
+                if len(val) == 0:
                     return ''
                 return ' - '.join(rec[k] for k in __partials)
 

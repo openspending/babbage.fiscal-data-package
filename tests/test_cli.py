@@ -20,7 +20,7 @@ class TestCLI(object):
         """
         cli_runner.invoke(cli,
                           args=['load-fdp', '--package', SAMPLE_PACKAGE],
-                          env={'OS_ELASTICSEARCH_ADDRESS': elasticsearch_address})
+                          env=os.environ.copy())
         cm = model_registry.ModelRegistry()
 
         assert len(list(cm.list_models())) > 0, 'no dataset was loaded'

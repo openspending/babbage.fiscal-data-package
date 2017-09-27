@@ -6,7 +6,7 @@ import json
 import requests
 
 from datapackage import DataPackage
-from jsontableschema_sql import Storage
+from tableschema_sql import Storage
 from os_api_cache import get_os_cache
 
 from .callbacks import *
@@ -65,8 +65,8 @@ class FDPLoader(object):
         logging.info('Loaded resource data hash is %s', current_data_hash)
 
         new_data_hash = None
-        remote_url = resource.remote_data_path
-        if remote_url:
+        remote_url = resource.source
+        if remote_url and remote_url.startswith('http'):
             response = requests.head(remote_url)
             new_data_hash = response.headers.get('etag')
         logging.info('Loading resource data hash is %s', new_data_hash)
@@ -135,7 +135,7 @@ class FDPLoader(object):
 
         # Load and validate the datapackage
         self.status_update(status=STATUS_LOADING_DATAPACKAGE)
-        self.dpo = DataPackage(package, schema='fiscal')
+        self.dpo = DataPackage(package)
         self.status_update(status=STATUS_VALIDATING_DATAPACKAGE)
         self.dpo.validate()
         self.status_update(status=STATUS_LOADING_RESOURCE)
@@ -237,7 +237,7 @@ class FDPLoader(object):
                 storage.create(faux_table_name, storage_schema, indexes_fields=indexes_fields)
 
                 self.status_update(status=STATUS_LOADING_DATA_READY)
-                row_processor = RowProcessor(resource.iter(), self.status_update,
+                row_processor = RowProcessor(resource.iter(keyed=True), self.status_update,
                                              schema, self.dpo.descriptor)
                 storage.write(faux_table_name, row_processor.iter())
 
